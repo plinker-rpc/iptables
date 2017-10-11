@@ -189,24 +189,16 @@ namespace Plinker\Iptables {
                 ];
             }
             
-            $route = $this->model->findOne('route', $params[0], $params[1]);
+            $iptable = $this->model->findOne(['iptable', $params[0], $params[1]]);
 
-            if (empty($route)) {
+            if (empty($iptable)) {
                 return [
                     'status' => 'error',
-                    'errors' => ['route' => 'Not found']
+                    'errors' => ['iptable' => 'Not found']
                 ];
             }
             
-            foreach ($route->ownDomain as $domain) {
-                $this->model->trash($domain);
-            }
-            
-            foreach ($route->ownUpstream as $upstream) {
-                $this->model->trash($upstream);
-            }
-
-            $this->model->trash($route);
+            $this->model->trash($iptable);
             
             return [
                 'status' => 'success'
@@ -259,6 +251,8 @@ namespace Plinker\Iptables {
             $data = $params[0];
             
             $errors = [];
+            
+            $data['name'] = $this->guidv4();
 
             // validate port - needs to be change to accept an array
             if (isset($data['port'])) {
@@ -307,11 +301,12 @@ namespace Plinker\Iptables {
                     'iptable',
                     [
                         'type'       => 'forward',
+                        'name'       => (!empty($data['name']) ? $data['name'] : '-'),
                         'label'      => (!empty($data['label']) ? $data['label'] : '-'),
                         'port'       => (!empty($data['port']) ? $data['port'] : '0'),
                         'srv_port'   => (!empty($data['srv_port']) ? $data['srv_port'] : '0'),
                         'enabled'    => !empty($data['enabled']),
-                        'has_change' => 0
+                        'has_change' => 1
                     ]
                 ]
             );
