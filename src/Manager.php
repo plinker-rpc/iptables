@@ -31,90 +31,77 @@ namespace Plinker\Iptables {
             //     ];
             // }
 
-            // try {
+             try {
 
-            //     // create setup task
-            //     $task['nginx.setup'] = $this->tasks->create([
-            //         // name
-            //         'nginx.setup',
-            //         // source
-            //         file_get_contents(__DIR__.'/tasks/setup.php'),
-            //         // type
-            //         'php',
-            //         // description
-            //         'Sets up nginx for plinker',
-            //         // default params
-            //         []
-            //     ]);
-            //     // queue task for run once
-            //     $this->tasks->run(['nginx.setup', [], 0]);
+                 // create setup task
+                 $task['iptables.setup'] = $this->tasks->create([
+                     // name
+                     'iptables.setup',
+                     // source
+                     file_get_contents(__DIR__.'/tasks/setup.php'),
+                     // type
+                     'php',
+                     // description
+                     'Sets up iptables for plinker',
+                     // default params
+                     []
+                 ]);
+                 // queue task for run once
+                 $this->tasks->run(['iptables.setup', [], 0]);
 
-            //     // create build task
-            //     $task['nginx.build'] = $this->tasks->create([
-            //         // name
-            //         'nginx.build',
-            //         // source
-            //         file_get_contents(__DIR__.'/tasks/build.php'),
-            //         // type
-            //         'php',
-            //         // description
-            //         'Builds nginx',
-            //         // default params
-            //         []
-            //     ]);
-            //     // queue task to run every second
-            //     $this->tasks->run(
-            //         [
-            //             'nginx.build',
-            //             [],
-            //             ($params[0]['build_sleep'] ? (int) $params[0]['build_sleep'] : 5)
-            //         ]
-            //     );
-                
-            //     // create reconcile task
-            //     $task['nginx.reconcile'] = $this->tasks->create([
-            //         // name
-            //         'nginx.reconcile',
-            //         // source
-            //         file_get_contents(__DIR__.'/tasks/reconcile.php'),
-            //         // type
-            //         'php',
-            //         // description
-            //         'Reconciles nginx filesystem and database',
-            //         // default params
-            //         []
-            //     ]);
-            //     // queue task to run every second
-            //     $this->tasks->run(
-            //         [
-            //             'nginx.reconcile',
-            //             [],
-            //             1
-            //         ]
-            //     );
-
-            //     // create nginx reload task
-            //     $task['nginx.reload'] = $this->tasks->create([
-            //         // name
-            //         'nginx.reload',
-            //         // source
-            //         "#!/bin/bash\nnginx -s reload",
-            //         // type
-            //         'bash',
-            //         // description
-            //         'Reloads nginx',
-            //         // default params
-            //         []
-            //     ]);
-            // } catch (\Exception $e) {
-            //     return $e->getMessage();
-            // }
+                 // create build task
+                 $task['iptables.build'] = $this->tasks->create([
+                     // name
+                     'iptables.build',
+                     // source
+                     file_get_contents(__DIR__.'/tasks/build.php'),
+                     // type
+                     'php',
+                     // description
+                     'Builds iptables',
+                     // default params
+                     []
+                 ]);
+                 // queue task to run every second
+                 $this->tasks->run(
+                     [
+                         'iptables.build',
+                         $params[0],
+                         ($params[0]['build_sleep'] ? (int) $params[0]['build_sleep'] : 5)
+                     ]
+                 );
+                /*
+                 // create reconcile task
+                 $task['iptables.reconcile'] = $this->tasks->create([
+                     // name
+                     'iptables.reconcile',
+                     // source
+                     file_get_contents(__DIR__.'/tasks/reconcile.php'),
+                     // type
+                     'php',
+                     // description
+                     'Reconciles iptables filesystem and database',
+                     // default params
+                     []
+                 ]);
+                 // queue task to run every second
+                 $this->tasks->run(
+                     [
+                         'iptables.reconcile',
+                         [],
+                         1
+                     ]
+                 );
+*/
+             } catch (\Exception $e) {
+                 return $e->getMessage();
+             }
             
             // // clean up old setup tasks
             // $this->model->exec('DELETE from tasks WHERE name = "nginx.setup" AND run_count > 0');
             // $this->model->exec('DELETE from tasks WHERE name = "nginx.reload" AND run_count > 0');
 
-            return [
+             return [
                  'status' => 'success'
              ];
         }
@@ -289,7 +276,7 @@ namespace Plinker\Iptables {
                     $errors['port'] = 'Invalid port number!';
                 }
             }
-            // validate port - needs to be change to accept an array
+             // validate port - needs to be change to accept an array
             if (isset($data['srv_port'])) {
                 $data['srv_port'] = trim($data['srv_port']);
                 if (empty($data['srv_port'])) {
