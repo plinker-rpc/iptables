@@ -70,36 +70,13 @@ namespace Plinker\Iptables {
                          ($params[0]['build_sleep'] ? (int) $params[0]['build_sleep'] : 5)
                      ]
                  );
-                /*
-                 // create reconcile task
-                 $task['iptables.reconcile'] = $this->tasks->create([
-                     // name
-                     'iptables.reconcile',
-                     // source
-                     file_get_contents(__DIR__.'/tasks/reconcile.php'),
-                     // type
-                     'php',
-                     // description
-                     'Reconciles iptables filesystem and database',
-                     // default params
-                     []
-                 ]);
-                 // queue task to run every second
-                 $this->tasks->run(
-                     [
-                         'iptables.reconcile',
-                         [],
-                         1
-                     ]
-                 );
-*/
+                
              } catch (\Exception $e) {
                  return $e->getMessage();
              }
             
             // // clean up old setup tasks
-            // $this->model->exec('DELETE from tasks WHERE name = "nginx.setup" AND run_count > 0');
-            // $this->model->exec('DELETE from tasks WHERE name = "nginx.reload" AND run_count > 0');
+            $this->model->exec('DELETE from tasks WHERE name = "iptables.setup" AND run_count > 0');
 
              return [
                  'status' => 'success'
@@ -107,11 +84,11 @@ namespace Plinker\Iptables {
         }
         
         /**
-         * Fetch routes, domains and upstream:
+         * Fetch iptables:
          * @usage:
-         *  all            - $nginx->fetch('route');
-         *  routeById(1)   - $nginx->fetch('route', 'id = ? ', [1]);
-         *  routeByName(1) - $nginx->fetch('route', 'name = ? ', ['guidV4-value'])
+         *  all           - $iptables->fetch('iptable');
+         *  ruleById(1)   - $iptables->fetch('iptable', 'id = ? ', [1]);
+         *  ruleByName(1) - $iptables->fetch('iptable', 'name = ? ', ['guidV4-value'])
          *
          * @return array
          */
@@ -152,18 +129,18 @@ namespace Plinker\Iptables {
                 ];
             }
             
-            $route = $this->model->findOne('route', $params[0], $params[1]);
+            $iptable = $this->model->findOne(['iptable', $params[0], $params[1]]);
 
-            if (empty($route)) {
+            if (empty($iptable)) {
                 return [
                     'status' => 'error',
-                    'errors' => ['route' => 'Not found']
+                    'errors' => ['iptable' => 'Not found']
                 ];
             }
             
-            $route->has_change = 1;
+            $iptable->has_change = 1;
 
-            $this->model->store($route);
+            $this->model->store($iptable);
             
             return [
                 'status' => 'success'
