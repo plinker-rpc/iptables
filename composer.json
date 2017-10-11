@@ -1,0 +1,28 @@
+{
+    "name": "plinker/iptables",
+    "minimum-stability": "dev",
+    "description": "WIP: Control iptables through plinker RPC",
+    "license": "MIT",
+    "keywords": ["plinker","rpc","iptables"],
+    "homepage": "https://github.com/plinker-rpc/iptables",
+    "authors": [
+        {
+            "name": "Lawrence Cherone",
+            "email": "lawrence@cherone.co.uk",
+            "homepage": "http://cherone.co.uk/"
+        }
+    ],
+    "support": {
+        "email": "plinker@cherone.co.uk"
+    },
+    "require": {
+        "plinker/core": ">=0.1",
+        "plinker/redbean": ">=0.1",
+        "plinker/tasks": ">=0.1"
+    },
+    "autoload": {
+        "psr-4": {
+            "Plinker\\Iptables\\": "src"
+        }
+    }
+}
