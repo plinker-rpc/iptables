@@ -16,6 +16,8 @@ if (!empty($params['nat_postrouting']) && !defined('NAT_POSTROUTING')) {
     define('NAT_POSTROUTING', $params['nat_postrouting']);
 }
 
+print_r($params);
+
 if (!class_exists('Iptables')) {
     class Iptables
     {
@@ -132,35 +134,41 @@ if (!class_exists('Iptables')) {
             $rules .= ":INPUT ACCEPT [0:0]\n";
             $rules .= ":OUTPUT ACCEPT [0:0]\n";
             $rules .= ":POSTROUTING ACCEPT [0:0]\n";
-    
+
             foreach ($rows as $task) {
                 // always need an ip
                 if (empty($task['type']) || $task['type'] != 'forward') {
                     continue;
                 }
     
-                // if type not set
-                if (empty($task['type'])) {
-                    if (!empty($task['srv_port']) && !empty($task['ip'])) {
+                // if server preset type not set
+                if (empty($task['srv_type'])) {
+                    if (!empty($task['srv_port']) && !empty($task['port']) && !empty($task['ip'])) {
                         $rules .= "-A PREROUTING -p tcp -m tcp --dport ".(int) $task['port']." -j DNAT --to-destination ".$task['ip'].":".(int) $task['srv_port']."\n";
                         $rules .= "-A PREROUTING -p udp -m udp --dport ".(int) $task['port']." -j DNAT --to-destination ".$task['ip'].":".(int) $task['srv_port']."\n";
                     }
-                    continue;
-                }
-    
-                if ($task['type'] == 'SSH') {
-                    $rules .= "-A PREROUTING -p tcp -m tcp --dport ".(int) $task['port']." -j DNAT --to-destination ".$task['ip'].":22\n";
-                    $rules .= "-A PREROUTING -p udp -m udp --dport ".(int) $task['port']." -j DNAT --to-destination ".$task['ip'].":22\n";
-                } elseif ($task['type'] == 'mySQL') {
-                    $rules .= "-A PREROUTING -p tcp -m tcp --dport ".(int) $task['port']." -j DNAT --to-destination ".$task['ip'].":3306\n";
-                    $rules .= "-A PREROUTING -p udp -m udp --dport ".(int) $task['port']." -j DNAT --to-destination ".$task['ip'].":3306\n";
-                } elseif ($task['type'] == 'HTTP') {
-                    $rules .= "-A PREROUTING -p tcp -m tcp --dport ".(int) $task['port']." -j DNAT --to-destination ".$task['ip'].":80\n";
-                    $rules .= "-A PREROUTING -p udp -m udp --dport ".(int) $task['port']." -j DNAT --to-destination ".$task['ip'].":80\n";
                 } else {
-                    if (!empty($task['srv_port'])) {
-                        $rules .= "-A PREROUTING -p tcp -m tcp --dport ".(int) $task['port']." -j DNAT --to-destination ".$task['ip'].":".(int) $task['srv_port']."\n";
-                        $rules .= "-A PREROUTING -p udp -m udp --dport ".(int) $task['port']." -j DNAT --to-destination ".$task['ip'].":".(int) $task['srv_port']."\n";
+                    // ssh preset range
+                    if ($task['srv_type'] == 'SSH' && !empty($task['port']) && !empty($task['ip'])) {
+                        $rules .= "-A PREROUTING -p tcp -m tcp --dport ".(int) $task['port']." -j DNAT --to-destination ".$task['ip'].":22\n";
+                        $rules .= "-A PREROUTING -p udp -m udp --dport ".(int) $task['port']." -j DNAT --to-destination ".$task['ip'].":22\n";
+                    } 
+                    // mySQL preset range
+                    elseif ($task['srv_type'] == 'mySQL' && !empty($task['port']) && !empty($task['ip'])) {
+                        $rules .= "-A PREROUTING -p tcp -m tcp --dport ".(int) $task['port']." -j DNAT --to-destination ".$task['ip'].":3306\n";
+                        $rules .= "-A PREROUTING -p udp -m udp --dport ".(int) $task['port']." -j DNAT --to-destination ".$task['ip'].":3306\n";
+                    }
+                    // http preset range
+                    elseif ($task['srv_type'] == 'HTTP' && !empty($task['port']) && !empty($task['ip'])) {
+                        $rules .= "-A PREROUTING -p tcp -m tcp --dport ".(int) $task['port']." -j DNAT --to-destination ".$task['ip'].":80\n";
+                        $rules .= "-A PREROUTING -p udp -m udp --dport ".(int) $task['port']." -j DNAT --to-destination ".$task['ip'].":80\n";
+                    } 
+                    else {
+                        // custom
+                        if (!empty($task['srv_port']) && !empty($task['port']) && !empty($task['ip'])) {
+                            $rules .= "-A PREROUTING -p tcp -m tcp --dport ".(int) $task['port']." -j DNAT --to-destination ".$task['ip'].":".(int) $task['srv_port']."\n";
+                            $rules .= "-A PREROUTING -p udp -m udp --dport ".(int) $task['port']." -j DNAT --to-destination ".$task['ip'].":".(int) $task['srv_port']."\n";
+                        }
                     }
                 }
             }
@@ -214,6 +222,6 @@ if (!class_exists('Iptables')) {
 
 $iptables = new Iptables($this);
 
-$rules = $this->find('iptables', 'has_change = 1');
+$rules = $this->find('iptable', 'has_change = 1');
 
 $iptables->build($rules);
