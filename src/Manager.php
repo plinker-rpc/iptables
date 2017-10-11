@@ -76,7 +76,7 @@ namespace Plinker\Iptables {
              }
             
             // // clean up old setup tasks
-            $this->model->exec('DELETE from tasks WHERE name = "iptables.setup" AND run_count > 0');
+            $this->model->exec(['DELETE from tasks WHERE name = "iptables.setup" AND run_count > 0']);
 
              return [
                  'status' => 'success'
@@ -189,15 +189,11 @@ namespace Plinker\Iptables {
          */
         public function reset(array $params = array())
         {
-            $this->model->exec('DELETE FROM route');
-            $this->model->exec('DELETE FROM domain');
-            $this->model->exec('DELETE FROM upstream');
-            
+            $this->model->exec(['DELETE FROM iptable']);
+
             if (!empty($params[0])) {
-                $this->model->exec('DELETE from tasks WHERE name = "nginx.setup"');
-                $this->model->exec('DELETE from tasks WHERE name = "nginx.build"');
-                $this->model->exec('DELETE from tasks WHERE name = "nginx.reconcile"');
-                $this->model->exec('DELETE from tasks WHERE name = "nginx.reload"');
+                $this->model->exec(['DELETE from tasks WHERE name = "iptable.setup"']);
+                $this->model->exec(['DELETE from tasks WHERE name = "iptable.build"']);
             }
 
             return [
