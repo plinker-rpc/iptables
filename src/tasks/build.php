@@ -196,7 +196,7 @@ if (!class_exists('Iptables')) {
 
             //write to iptables rules file
             //
-            echo DEBUG ? $this->runner->log('Applying IPTables rules') : null;
+            echo DEBUG ? $this->log('Applying IPTables rules') : null;
 
             file_put_contents('iptables.rules.v4', $rules);
     
