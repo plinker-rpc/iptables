@@ -25,40 +25,40 @@ namespace Plinker\Iptables {
             try {
                 // create setup task
                 $task['iptables.setup'] = $this->tasks->create([
-                     // name
-                     'iptables.setup',
-                     // source
-                     file_get_contents(__DIR__.'/tasks/setup.php'),
-                     // type
-                     'php',
-                     // description
-                     'Sets up iptables for plinker',
-                     // default params
-                     []
+                    // name
+                    'iptables.setup',
+                    // source
+                    file_get_contents(__DIR__.'/tasks/setup.php'),
+                    // type
+                    'php',
+                    // description
+                    'Sets up iptables for plinker',
+                    // default params
+                    []
                  ]);
                 // queue task for run once
                 $this->tasks->run(['iptables.setup', [], 0]);
 
                 // create build task
                 $task['iptables.build'] = $this->tasks->create([
-                     // name
-                     'iptables.build',
-                     // source
-                     file_get_contents(__DIR__.'/tasks/build.php'),
-                     // type
-                     'php',
-                     // description
-                     'Builds iptables',
-                     // default params
-                     []
+                    // name
+                    'iptables.build',
+                    // source
+                    file_get_contents(__DIR__.'/tasks/build.php'),
+                    // type
+                    'php',
+                    // description
+                    'Builds iptables',
+                    // default params
+                    []
                  ]);
                 // queue task to run every second
                 $this->tasks->run(
-                     [
-                         'iptables.build',
-                         $params[0],
-                         ($params[0]['build_sleep'] ? (int) $params[0]['build_sleep'] : 5)
-                     ]
+                    [
+                        'iptables.build',
+                        $params[0],
+                        ($params[0]['build_sleep'] ? (int) $params[0]['build_sleep'] : 5)
+                    ]
                  );
             } catch (\Exception $e) {
                 return $e->getMessage();
@@ -68,8 +68,8 @@ namespace Plinker\Iptables {
             $this->model->exec(['DELETE from tasks WHERE name = "iptables.setup" AND run_count > 0']);
 
             return [
-                 'status' => 'success'
-             ];
+                'status' => 'success'
+            ];
         }
         
         /**
