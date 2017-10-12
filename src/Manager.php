@@ -271,7 +271,7 @@ namespace Plinker\Iptables {
                         'ip'         => (!empty($data['ip']) ? $data['ip'] : ''),
                         'range'      => (!empty($data['range']) ? $data['range'] : ''),
                         'note'       => (isset($data['note']) ? $data['note'] : ''),
-                        'added_date' => date_create()->format('Y-m-d H:i:s'),
+                        'added_date' => date_create(),
                         'bantime'    => (!empty($data['bantime']) ? (int) $data['bantime'] : 0),
                         'enabled'    => !empty($data['enabled']),
                         'has_change' => 1
@@ -384,7 +384,7 @@ namespace Plinker\Iptables {
             ]);
             
             // setupdated date and set has change
-            $iptable->updated_date = date_create()->format('Y-m-d H:i:s');
+            $iptable->updated_date = date_create();
             $iptable->has_change = 1;
 
             try {
@@ -579,6 +579,7 @@ namespace Plinker\Iptables {
                         'srv_type'   => (!empty($data['srv_type']) ? $data['srv_type'] : ''),
                         'srv_port'   => (!empty($data['srv_port']) ? $data['srv_port'] : ''),
                         'enabled'    => !empty($data['enabled']),
+                        'added_date' => date_create(),
                         'has_change' => 1
                     ]
                 ]
