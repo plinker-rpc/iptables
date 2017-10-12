@@ -18,7 +18,7 @@ namespace Plinker\Iptables {
         }
 
         /**
-         *
+         * Apply component tasks
          */
         public function setup(array $params = array())
         {
@@ -73,7 +73,8 @@ namespace Plinker\Iptables {
         }
         
         /**
-         * Fetch iptables:
+         * Fetch iptable rules
+         *
          * @usage:
          *  all           - $iptables->fetch('iptable');
          *  ruleById(1)   - $iptables->fetch('iptable', 'id = ? ', [1]);
@@ -100,7 +101,9 @@ namespace Plinker\Iptables {
         }
         
         /**
+         * Trigger rebuild
          *
+         * $iptables->rebuild('name = ?', [$row['name']]);
          */
         public function rebuild(array $params = array())
         {
@@ -137,7 +140,7 @@ namespace Plinker\Iptables {
         }
 
         /**
-         *
+         * Remove iptable rule
          */
         public function remove(array $params = array())
         {
@@ -298,14 +301,14 @@ namespace Plinker\Iptables {
          * Update IP Block
          *
          * $iptables->updateBlock('id=?', [1], [
-            'label' => ''
-            'enabled' => 1
-            'has_change' => 1
-            'ip' => 212.123.123.123
-            'range' => 32
-            'note' => FooBar
-            'bandate' =>
-            'bantime' => 0
+         *     'label' => ''
+         *     'enabled' => 1
+         *     'has_change' => 1
+         *     'ip' => 212.123.123.123
+         *     'range' => 32
+         *     'note' => FooBar
+         *     'bandate' =>
+         *     'bantime' => 0
          * ])
          */
         public function updateBlock(array $params = array())
