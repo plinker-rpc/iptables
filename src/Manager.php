@@ -253,7 +253,7 @@ namespace Plinker\Iptables {
                 return [
                     'status' => 'error',
                     'errors' => $errors,
-                    'form'   => $data
+                    'values' => $data
                 ];
             }
             
@@ -284,13 +284,15 @@ namespace Plinker\Iptables {
                 return [
                     'status' => 'error',
                     'errors' => ['store' => $e->getMessage()],
-                    'form'   => $data
+                    'values' => $data
                 ];
             }
+            
+            $data = $this->model->export($iptable)[0];
 
             return [
                 'status' => 'success',
-                'form' => $data
+                'values' => $data
             ];
         }
         
@@ -387,22 +389,22 @@ namespace Plinker\Iptables {
             if (isset($data['port'])) {
                 $data['port'] = trim($data['port']);
                 if (empty($data['port'])) {
-                    $errors['port'] = 'Leave blank or enter a numeric port number to use this option';
+                    $errors['port'] = 'Leave blank or enter a numeric port number to use this option.';
                 }
                 if (!empty($data['port']) && !is_numeric($data['port'])) {
-                    $errors['port'] = 'Invalid port number!';
+                    $errors['port'] = 'Invalid port number.';
                 }
                 if (!empty($data['port']) && is_numeric($data['port']) && $data['port'] > 65535) {
-                    $errors['port'] = 'Invalid port number!';
+                    $errors['port'] = 'Invalid port number.';
                 }
                 if (!empty($data['port']) && is_numeric($data['port']) && $data['port'] == 0) {
-                    $errors['port'] = 'Invalid port number!';
+                    $errors['port'] = 'Invalid port number.';
                 }
                 if (!empty($data['port']) && is_numeric($data['port']) && $this->checkPortInUse([$data['port']])) {
-                    $errors['port'] = 'Port already in use, please choose another.';
+                    $errors['port'] = 'Port already in use.';
                 }
                 if (!empty($data['port']) && is_numeric($data['port']) && !$this->checkAllowedPort([$data['port']])) {
-                    $errors['port'] = 'Invalid available port, please choose another.';
+                    $errors['port'] = 'Invalid available port.';
                 }
             }
 
@@ -410,16 +412,16 @@ namespace Plinker\Iptables {
             if (isset($data['srv_port'])) {
                 $data['srv_port'] = trim($data['srv_port']);
                 if (empty($data['srv_port'])) {
-                    $errors['srv_port'] = 'Leave blank or enter a numeric port number to use this option';
+                    $errors['srv_port'] = 'Leave blank or enter a numeric port number to use this option.';
                 }
                 if (!empty($data['srv_port']) && !is_numeric($data['srv_port'])) {
-                    $errors['srv_port'] = 'Invalid service port number!';
+                    $errors['srv_port'] = 'Invalid service port number.';
                 }
                 if (!empty($data['srv_port']) && is_numeric($data['srv_port']) && $data['srv_port'] > 65535) {
-                    $errors['srv_port'] = 'Invalid service port number!';
+                    $errors['srv_port'] = 'Invalid service port number.';
                 }
                 if (!empty($data['srv_port']) && is_numeric($data['srv_port']) && $data['srv_port'] == 0) {
-                    $errors['srv_port'] = 'Invalid service port number!';
+                    $errors['srv_port'] = 'Invalid service port number.';
                 }
             }
             
@@ -428,7 +430,7 @@ namespace Plinker\Iptables {
                 return [
                     'status' => 'error',
                     'errors' => $errors,
-                    'form'   => $data
+                    'values' => $data
                 ];
             }
             
@@ -459,13 +461,15 @@ namespace Plinker\Iptables {
                 return [
                     'status' => 'error',
                     'errors' => ['store' => $e->getMessage()],
-                    'form'   => $data
+                    'values' => $data
                 ];
             }
+            
+            $data = $this->model->export($iptable)[0];
 
             return [
                 'status' => 'success',
-                'form' => $data
+                'values' => $data
             ];
         }
         

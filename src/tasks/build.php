@@ -37,7 +37,7 @@ if (!class_exists('Iptables')) {
                 file_put_contents('./logs/'.date("d-m-Y").'.txt', $log, FILE_APPEND);
             }
             
-            echo DEBUG ? "   - ".$message."\n" : null;
+            echo DEBUG ? " - ".$message."\n" : null;
         }
 
         /**
@@ -50,66 +50,9 @@ if (!class_exists('Iptables')) {
             if (empty($rows)) {
                 return;
             }
-            
-            // //process fail2ban log - deprecated
-
-            // if (file_exists('/var/log/fail2ban.log')) {
-            // 	foreach (file('/var/log/fail2ban.log', FILE_SKIP_EMPTY_LINES | FILE_IGNORE_NEW_LINES) as $line) {
-    
-            // 		preg_match('/(\d+-\d+-\d+\s\d+:\d+:\d+),\d+\sfail2ban.actions:\s(INFO|WARNING)\s\[(.+)\]\s(Ban|Unban)\s(.+)$/', $line, $matches);
-            // 		$banDate = !empty($matches[1]) ? $matches[1] : null;
-            // 		$banLogType = !empty($matches[2]) ? $matches[2] : null;
-            // 		$banJail = !empty($matches[3]) ? $matches[3] : null;
-            // 		$banType = !empty($matches[4]) ? $matches[4] : null;
-            // 		$banIp = !empty($matches[5]) ? $matches[5] : null;
-    
-            // 		if (!filter_var($banIp, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
-            // 			continue;
-            // 		}
-    
-            // 		// ban
-            // 		if ($banType == 'Ban') {
-            // 			$ipban = R::findOne('ipban', ' ip = ?', [ $banIp ]);
-            // 			// ban not found in database
-            // 			if (empty($ipban)) {
-            // 				$ipban = R::dispense('ipban');
-            // 				$ipban->import(array(
-            // 					'bantime' => $banDate,
-            // 					'unbantime' => '0000-00-00 00:00:00',
-            // 					'log_type' => $banLogType,
-            // 					'jail' => $banJail,
-            // 					'type' => $banType,
-            // 					'ip' => $banIp,
-            // 					'whitelist' => (in_array($banIp.'/32', $this->trustedHosts) ? 1 : 0),
-            // 				));
-            // 				R::store($ipban);
-    
-            // 				$this->task->log('Task BuildIPTables - IP blocked: '.$banIp.' '.$banJail);
-            // 			}
-            // 		}
-            // 		// // unban - removed so admin needs to unblock all ips, uncomment to allow fail2ban log to determine
-            // 		// if ($banType == 'Unban') {
-            // 		//     $ipban = R::findOne('ipban', ' ip = ?', [ $banIp ]);
-            // 		//     if (!empty($ipban)) {
-            // 		//         R::exec('DELETE FROM ipban WHERE ip = ?', [$banIp]);
-            // 		//     }
-            // 		// }
-            // 	}
-            // }
-    
-            // whitelisted host rules
-            // foreach ($ipban as $host) {
-            // 	//already added trused whitelist
-            // 	if (in_array($host->ip.'/32', $this->trustedHosts)) {
-            // 		continue;
-            // 	}
-            // 	if ($host->whitelist == 1) {
-            // 		$rules .= "-A INPUT -s {$host->ip}/32 -p tcp -j ACCEPT\n";
-            // 	}
-            // }
-    
 
             $rules = "# Generated on ".date('D M j H:i:s Y')."\n";
+            /* MANGLE */
             $rules .= "*mangle\n";
             $rules .= ":PREROUTING ACCEPT [0:0]\n";
             $rules .= ":INPUT ACCEPT [0:0]\n";
@@ -118,15 +61,14 @@ if (!class_exists('Iptables')) {
             $rules .= ":POSTROUTING ACCEPT [0:0]\n";
             $rules .= "-A POSTROUTING -o lxcbr0 -p udp -m udp --dport 68 -j CHECKSUM --checksum-fill\n";
             $rules .= "COMMIT\n";
-    
+            /* NAT */
             $rules .= "*nat\n";
             $rules .= ":PREROUTING ACCEPT [0:0]\n";
             $rules .= ":INPUT ACCEPT [0:0]\n";
             $rules .= ":OUTPUT ACCEPT [0:0]\n";
             $rules .= ":POSTROUTING ACCEPT [0:0]\n";
-
+            /* PREROUTING - Port Forwarding */
             foreach ($rows as $row) {
-                // always need an ip
                 if (empty($row['type']) || $row['type'] != 'forward') {
                     continue;
                 }
@@ -167,12 +109,11 @@ if (!class_exists('Iptables')) {
                 $row->has_change = 0;        
                 $this->task->store($row);
             }
-    
-            // intergrate MAC accociation - shoul stop ARP spoofin
-            // iptables -A FORWARD -s 172.16.1.4 -m mac ! --mac-source 00:11:22:33:44:55 -j DROP
-    
             $rules .= "-A POSTROUTING -s ".NAT_POSTROUTING." ! -d ".NAT_POSTROUTING." -j MASQUERADE\n";
+            // iptables -A FORWARD -s 172.16.1.4 -m mac ! --mac-source 00:11:22:33:44:55 -j DROP
             $rules .= "COMMIT\n";
+            
+            /* FILTER */
             $rules .= "*filter\n";
             $rules .= ":INPUT ACCEPT [0:0]\n";
             $rules .= ":FORWARD ACCEPT [0:0]\n";
@@ -203,13 +144,14 @@ if (!class_exists('Iptables')) {
             		continue;
             	}
             	$rules .= "-A INPUT -s {$row['ip']}/{$row['range']} -j REJECT\n";
+            	$row->has_change = 0;        
+                $this->task->store($row);
             }
             $rules .= "-A fail2ban-ssh -j RETURN\n";
             $rules .= "COMMIT\n";
             $rules .= "# Completed on ".date('D M j H:i:s Y');
 
-            //write to iptables rules file
-            //
+            // write to iptables rules file
             echo DEBUG ? $this->log('Applying IPTables rules') : null;
 
             file_put_contents(getcwd().'/iptables.rules.v4', $rules);
