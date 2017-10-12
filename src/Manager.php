@@ -22,19 +22,9 @@ namespace Plinker\Iptables {
          */
         public function setup(array $params = array())
         {
-            // if (!file_exists('/etc/nginx')) {
-            //     return [
-            //         'status' => 'error',
-            //         'errors' => [
-            //             'setup' => 'Nginx not installed! - Read the README.md for setup instructions.'
-            //         ]
-            //     ];
-            // }
-
-             try {
-
-                 // create setup task
-                 $task['iptables.setup'] = $this->tasks->create([
+            try {
+                // create setup task
+                $task['iptables.setup'] = $this->tasks->create([
                      // name
                      'iptables.setup',
                      // source
@@ -46,11 +36,11 @@ namespace Plinker\Iptables {
                      // default params
                      []
                  ]);
-                 // queue task for run once
-                 $this->tasks->run(['iptables.setup', [], 0]);
+                // queue task for run once
+                $this->tasks->run(['iptables.setup', [], 0]);
 
-                 // create build task
-                 $task['iptables.build'] = $this->tasks->create([
+                // create build task
+                $task['iptables.build'] = $this->tasks->create([
                      // name
                      'iptables.build',
                      // source
@@ -62,23 +52,22 @@ namespace Plinker\Iptables {
                      // default params
                      []
                  ]);
-                 // queue task to run every second
-                 $this->tasks->run(
+                // queue task to run every second
+                $this->tasks->run(
                      [
                          'iptables.build',
                          $params[0],
                          ($params[0]['build_sleep'] ? (int) $params[0]['build_sleep'] : 5)
                      ]
                  );
-                
-             } catch (\Exception $e) {
-                 return $e->getMessage();
-             }
+            } catch (\Exception $e) {
+                return $e->getMessage();
+            }
             
             // // clean up old setup tasks
             $this->model->exec(['DELETE from tasks WHERE name = "iptables.setup" AND run_count > 0']);
 
-             return [
+            return [
                  'status' => 'success'
              ];
         }
