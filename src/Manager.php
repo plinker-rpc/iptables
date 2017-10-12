@@ -192,8 +192,9 @@ namespace Plinker\Iptables {
             $this->model->exec(['DELETE FROM iptable']);
 
             if (!empty($params[0])) {
-                $this->model->exec(['DELETE from tasks WHERE name = "iptable.setup"']);
-                $this->model->exec(['DELETE from tasks WHERE name = "iptable.build"']);
+                $this->model->exec(['DELETE FROM tasks WHERE name = "iptables.setup"']);
+                $this->model->exec(['DELETE FROM tasks WHERE name = "iptables.build"']);
+                $this->model->exec(['DELETE FROM tasks WHERE name = "iptables.reconcile"']);
             }
 
             return [
@@ -214,6 +215,85 @@ namespace Plinker\Iptables {
             $data[6] = chr(ord($data[6]) & 0x0f | 0x40); // set version to 0100
             $data[8] = chr(ord($data[8]) & 0x3f | 0x80); // set bits 6-7 to 10
             return vsprintf('%s%s-%s-%s-%s-%s%s%s', str_split(bin2hex($data), 4));
+        }
+        
+        /**
+         * Lookup existing ports used, and return array containing unused ports within the range.
+         */
+        public function availablePorts($type)
+        {
+            switch($type) {
+                case "SSH": {
+                    $range = range(2200, 2299);
+                    $port  = 22;
+                } break;
+
+                case "HTTP": {
+                    $range = range(8000, 8099);
+                    $port  = 80;
+                } break;
+
+                case "mySQL": {
+                    $range = range(3300, 3399);
+                    $port  = 3306;
+                } break;
+
+                case "ShellInABox": {
+                    $range = range(4300, 4399);
+                    $port  = 4200;
+                } break;
+
+                case "All": {
+                    $range = array_merge(
+                        range(2200, 2299),
+                        range(3300, 3399),
+                        range(4300, 4399),
+                        range(8000, 8099)
+                    );
+                    $port  = null;
+                } break;
+            }
+
+            if ($port === null) {
+                $current = $this->model->getCol([
+                    'SELECT port FROM iptable'
+                ]);
+            } else {
+                $current = $this->model->getCol([
+                    'SELECT port FROM iptable WHERE port LIKE ?',
+                    [
+                        $port.'%'
+                    ]
+                ]);
+            }
+
+            return array_diff(
+                (array) $range,
+                (array) $current
+            );
+        }
+
+        /**
+         * Check if a host/external port is in use
+         */
+        public function checkPortInUse($port)
+        {
+            return ($this->model->count(['iptable', 'port = ?', [$port]]) > 0);
+        }
+
+        /**
+         * Check if port is within allowed range
+         */
+        public function checkAllowedPort($port)
+        {
+            return (
+                in_array($port, array_merge(
+                    range(2200, 2299),
+                    range(3300, 3399),
+                    range(4300, 4399),
+                    range(8000, 8099)
+                ))
+            );
         }
 
         /**
@@ -242,20 +322,27 @@ namespace Plinker\Iptables {
                 if (!empty($data['port']) && is_numeric($data['port']) && $data['port'] == 0) {
                     $errors['port'] = 'Invalid port number!';
                 }
+                if ($this->checkPortInUse($data['port'])) {
+                    $errors['port'] = 'Port already in use, please choose another.';
+                }
+                if (!$this->checkAllowedPort($data['port'])) {
+                    $errors['port'] = 'Invalid available port, please choose another.';
+                }
             }
-             // validate port - needs to be change to accept an array
+            
+            // validate port - needs to be change to accept an array
             if (isset($data['srv_port'])) {
                 $data['srv_port'] = trim($data['srv_port']);
                 if (empty($data['srv_port'])) {
                     $errors['srv_port'] = 'Leave blank or enter a numeric port number to use this option';
                 }
-                if (!empty($data['port']) && !is_numeric($data['port'])) {
+                if (!empty($data['srv_port']) && !is_numeric($data['srv_port'])) {
                     $errors['srv_port'] = 'Invalid port number!';
                 }
-                if (!empty($data['port']) && is_numeric($data['port']) && $data['port'] > 65535) {
+                if (!empty($data['srv_port']) && is_numeric($data['srv_port']) && $data['srv_port'] > 65535) {
                     $errors['srv_port'] = 'Invalid port number!';
                 }
-                if (!empty($data['port']) && is_numeric($data['port']) && $data['port'] == 0) {
+                if (!empty($data['srv_port']) && is_numeric($data['srv_port']) && $data['srv_port'] == 0) {
                     $errors['srv_port'] = 'Invalid port number!';
                 }
             }
@@ -276,8 +363,10 @@ namespace Plinker\Iptables {
                         'type'       => 'forward',
                         'name'       => (!empty($data['name']) ? $data['name'] : '-'),
                         'label'      => (!empty($data['label']) ? $data['label'] : '-'),
-                        'port'       => (!empty($data['port']) ? $data['port'] : '0'),
-                        'srv_port'   => (!empty($data['srv_port']) ? $data['srv_port'] : '0'),
+                        'ip'         => (!empty($data['ip']) ? $data['ip'] : ''),
+                        'port'       => (!empty($data['port']) ? $data['port'] : ''),
+                        'srv_type'   => (!empty($data['srv_type']) ? $data['srv_type'] : ''),
+                        'srv_port'   => (!empty($data['srv_port']) ? $data['srv_port'] : ''),
                         'enabled'    => !empty($data['enabled']),
                         'has_change' => 1
                     ]
