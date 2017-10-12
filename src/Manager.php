@@ -218,36 +218,114 @@ namespace Plinker\Iptables {
         }
         
         /**
+         *
+         */
+        public function addBlock(array $params = array())
+        {
+            $data = $params[0];
+            
+            $errors = [];
+            
+            // validate ip
+            if (empty($data['ip'])) {
+                $errors['ip'] = 'IP is a required field';
+            } else {
+                if ($this->model->count(['iptable', 'ip = ?', [$data['ip']]]) > 0) {
+                    $errors['ip'] = 'IP already blocked';
+                }
+                
+                if (!filter_var($data['ip'], FILTER_VALIDATE_IP)) {
+                    $errors['ip'] = 'Invalid IP address';
+                }
+            }
+            
+            // validate range
+            if (empty($data['range'])) {
+                $errors['range'] = 'Range is a required field';
+            } else {
+                if (!in_array((int) $data['range'], [8, 16, 24, 32])) {
+                    $errors['range'] = 'Invalid range. Only 8/16/24/32 is supported';
+                }
+            }
+
+            // has error/s
+            if (!empty($errors)) {
+                return [
+                    'status' => 'error',
+                    'errors' => $errors,
+                    'form'   => $data
+                ];
+            }
+            
+            // set guid name
+            $data['name'] = $this->guidv4();
+
+            // create iptable
+            $iptable = $this->model->create(
+                [
+                    'iptable',
+                    [
+                        'type'       => 'block',
+                        'name'       => (!empty($data['name']) ? $data['name'] : '-'),
+                        'label'      => (!empty($data['label']) ? $data['label'] : '-'),
+                        'ip'         => (!empty($data['ip']) ? $data['ip'] : ''),
+                        'range'      => (!empty($data['range']) ? $data['range'] : ''),
+                        'note'       => (isset($data['note']) ? $data['note'] : ''),
+                        'added_date' => date_create()->format('Y-m-d H:i:s'),
+                        'bantime'    => (!empty($data['bantime']) ? (int) $data['bantime'] : 0),
+                        'has_change' => 1
+                    ]
+                ]
+            );
+
+            try {
+                $this->model->store($iptable);
+            } catch (\Exception $e) {
+                return [
+                    'status' => 'error',
+                    'errors' => ['store' => $e->getMessage()],
+                    'form'   => $data
+                ];
+            }
+
+            return [
+                'status' => 'success',
+                'form' => $data
+            ];
+        }
+        
+        /**
          * Lookup existing ports used, and return array containing unused ports within the range.
          */
-        public function availablePorts($type)
+        public function availablePorts(array $params = array())
         {
-            switch($type) {
-                case "SSH": {
+            switch ((string) strtolower($params[0])) {
+                case "ssh": {
                     $range = range(2200, 2299);
                     $port  = 22;
                 } break;
 
-                case "HTTP": {
+                case "http": {
                     $range = range(8000, 8099);
                     $port  = 80;
                 } break;
 
-                case "mySQL": {
+                case "mysql": {
                     $range = range(3300, 3399);
-                    $port  = 3306;
+                    $port  = 33;
                 } break;
 
-                case "ShellInABox": {
-                    $range = range(4300, 4399);
-                    $port  = 4200;
+                case "shellinabox": {
+                    $range = range(4200, 4299);
+                    $port  = 42;
                 } break;
 
-                case "All": {
+                case "":
+                case "all": {
                     $range = array_merge(
                         range(2200, 2299),
                         range(3300, 3399),
-                        range(4300, 4399),
+                        range(4200, 4299),
                         range(8000, 8099)
                     );
                     $port  = null;
@@ -267,27 +345,27 @@ namespace Plinker\Iptables {
                 ]);
             }
 
-            return array_diff(
+            return array_values(array_diff(
                 (array) $range,
                 (array) $current
-            );
+            ));
         }
 
         /**
          * Check if a host/external port is in use
          */
-        public function checkPortInUse($port)
+        public function checkPortInUse(array $params = array())
         {
-            return ($this->model->count(['iptable', 'port = ?', [$port]]) > 0);
+            return ($this->model->count(['iptable', 'port = ?', [$params[0]]]) > 0);
         }
 
         /**
          * Check if port is within allowed range
          */
-        public function checkAllowedPort($port)
+        public function checkAllowedPort(array $params = array())
         {
             return (
-                in_array($port, array_merge(
+                in_array($params[0], array_merge(
                     range(2200, 2299),
                     range(3300, 3399),
                     range(4300, 4399),
@@ -304,8 +382,6 @@ namespace Plinker\Iptables {
             $data = $params[0];
             
             $errors = [];
-            
-            $data['name'] = $this->guidv4();
 
             // validate port - needs to be change to accept an array
             if (isset($data['port'])) {
@@ -322,14 +398,14 @@ namespace Plinker\Iptables {
                 if (!empty($data['port']) && is_numeric($data['port']) && $data['port'] == 0) {
                     $errors['port'] = 'Invalid port number!';
                 }
-                if ($this->checkPortInUse($data['port'])) {
+                if (!empty($data['port']) && is_numeric($data['port']) && $this->checkPortInUse([$data['port']])) {
                     $errors['port'] = 'Port already in use, please choose another.';
                 }
-                if (!$this->checkAllowedPort($data['port'])) {
+                if (!empty($data['port']) && is_numeric($data['port']) && !$this->checkAllowedPort([$data['port']])) {
                     $errors['port'] = 'Invalid available port, please choose another.';
                 }
             }
-            
+
             // validate port - needs to be change to accept an array
             if (isset($data['srv_port'])) {
                 $data['srv_port'] = trim($data['srv_port']);
@@ -337,13 +413,13 @@ namespace Plinker\Iptables {
                     $errors['srv_port'] = 'Leave blank or enter a numeric port number to use this option';
                 }
                 if (!empty($data['srv_port']) && !is_numeric($data['srv_port'])) {
-                    $errors['srv_port'] = 'Invalid port number!';
+                    $errors['srv_port'] = 'Invalid service port number!';
                 }
                 if (!empty($data['srv_port']) && is_numeric($data['srv_port']) && $data['srv_port'] > 65535) {
-                    $errors['srv_port'] = 'Invalid port number!';
+                    $errors['srv_port'] = 'Invalid service port number!';
                 }
                 if (!empty($data['srv_port']) && is_numeric($data['srv_port']) && $data['srv_port'] == 0) {
-                    $errors['srv_port'] = 'Invalid port number!';
+                    $errors['srv_port'] = 'Invalid service port number!';
                 }
             }
             
@@ -351,9 +427,13 @@ namespace Plinker\Iptables {
             if (!empty($errors)) {
                 return [
                     'status' => 'error',
-                    'errors' => $errors
+                    'errors' => $errors,
+                    'form'   => $data
                 ];
             }
+            
+            // set guid name
+            $data['name'] = $this->guidv4();
 
             // create iptable
             $iptable = $this->model->create(
@@ -378,12 +458,14 @@ namespace Plinker\Iptables {
             } catch (\Exception $e) {
                 return [
                     'status' => 'error',
-                    'errors' => ['store' => $e->getMessage()]
+                    'errors' => ['store' => $e->getMessage()],
+                    'form'   => $data
                 ];
             }
 
             return [
-                'status' => 'success'
+                'status' => 'success',
+                'form' => $data
             ];
         }
         

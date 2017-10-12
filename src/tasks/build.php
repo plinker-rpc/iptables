@@ -43,8 +43,10 @@ if (!class_exists('Iptables')) {
         /**
          *
          */
-        public function build($rows)
+        public function build()
         {
+            $rows = $this->task->find('iptable', 'has_change = 1');
+
             if (empty($rows)) {
                 return;
             }
@@ -106,21 +108,7 @@ if (!class_exists('Iptables')) {
             // 	}
             // }
     
-            // // blocked hosts
-            // foreach ($ipban as $host) {
-            // 	//already added as trused ip
-            // 	if (in_array($host->ip.'/32', $this->trustedHosts)) {
-            // 		continue;
-            // 	}
-            // 	//already done whitelist
-            // 	if ($host->whitelist == 1) {
-            // 		continue;
-            // 	}
-            // 	$rules .= "-A INPUT -s {$host->ip}/32 -j DROP\n";
-            // }
-    
-            //$ipban = R::findAll('ipban');
-    
+
             $rules = "# Generated on ".date('D M j H:i:s Y')."\n";
             $rules .= "*mangle\n";
             $rules .= ":PREROUTING ACCEPT [0:0]\n";
@@ -209,6 +197,13 @@ if (!class_exists('Iptables')) {
             $rules .= "-A OUTPUT -p tcp -m tcp --sport 80 -m conntrack --ctstate ESTABLISHED -j ACCEPT\n";
             $rules .= "-A OUTPUT -p tcp -m tcp --sport 443 -m conntrack --ctstate ESTABLISHED -j ACCEPT\n";
             $rules .= "-A OUTPUT -p tcp -m tcp --sport 8443 -m conntrack --ctstate ESTABLISHED -j ACCEPT\n";
+            // blocked hosts
+            foreach ($rows as $row) {
+            	if (empty($row['type']) || $row['type'] != 'block') {
+            		continue;
+            	}
+            	$rules .= "-A INPUT -s {$row['ip']}/{$row['range']} -j REJECT\n";
+            }
             $rules .= "-A fail2ban-ssh -j RETURN\n";
             $rules .= "COMMIT\n";
             $rules .= "# Completed on ".date('D M j H:i:s Y');
@@ -217,10 +212,10 @@ if (!class_exists('Iptables')) {
             //
             echo DEBUG ? $this->log('Applying IPTables rules') : null;
 
-            file_put_contents('iptables.rules.v4', $rules);
+            file_put_contents(getcwd().'/iptables.rules.v4', $rules);
     
             //apply iptables
-            //exec('/sbin/iptables-restore < /root/host-agent/iptables.rules.v4');
+            exec('/sbin/iptables-restore < '.getcwd().'/iptables.rules.v4');
             return;
         }
         
@@ -229,6 +224,4 @@ if (!class_exists('Iptables')) {
 
 $iptables = new Iptables($this);
 
-$rules = $this->find('iptable', 'has_change = 1');
-
-$iptables->build($rules);
+$iptables->build();
