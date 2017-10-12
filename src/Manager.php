@@ -207,6 +207,14 @@ namespace Plinker\Iptables {
         }
         
         /**
+         * Add IP block
+         *
+         * $iptables->addBlock([
+         *   'ip'      => '123.123.123.123',
+         *   'range'   => 32, // 8, 16. 24. 32
+         *   'note'    => 'Port scanned server',
+         *   'enabled' => 1
+         * ]);
          *
          */
         public function addBlock(array $params = array())
@@ -262,6 +270,7 @@ namespace Plinker\Iptables {
                         'note'       => (isset($data['note']) ? $data['note'] : ''),
                         'added_date' => date_create()->format('Y-m-d H:i:s'),
                         'bantime'    => (!empty($data['bantime']) ? (int) $data['bantime'] : 0),
+                        'enabled'    => !empty($data['enabled']),
                         'has_change' => 1
                     ]
                 ]
@@ -286,7 +295,118 @@ namespace Plinker\Iptables {
         }
         
         /**
-         * Lookup existing ports used, and return array containing unused ports within the range.
+         * Update IP Block
+         *
+         * $iptables->updateBlock('id=?', [1], [
+            'label' => ''
+            'enabled' => 1
+            'has_change' => 1
+            'ip' => 212.123.123.123
+            'range' => 32
+            'note' => FooBar
+            'bandate' =>
+            'bantime' => 0
+         * ])
+         */
+        public function updateBlock(array $params = array())
+        {
+            $query = $params[0];
+            $id    = (array) $params[1];
+            $data  = (array) $params[2];
+            
+            $errors = [];
+            
+            $iptable = $this->model->findOne(['iptable', $query, $id]);
+            
+            // check found
+            if (empty($iptable->name)) {
+                return [
+                    'status' => 'error',
+                    'errors' => ['query' => 'Rule not found'],
+                    'values' => $data
+                ];
+            }
+            
+            // dont allow name change
+            if (isset($data['name']) && $data['name'] != $iptable->name) {
+                return [
+                    'status' => 'error',
+                    'errors' => ['name' => 'Name cannot be changed'],
+                    'values' => $data
+                ];
+            }
+            
+            // validate ip
+            if (empty($data['ip'])) {
+                $errors['ip'] = 'IP is a required field';
+            } else {
+                if ($this->model->count(['iptable', 'ip = ?', [$data['ip']]]) > 0) {
+                    if ($iptable->name != $data['name']) {
+                        $errors['ip'] = 'IP already blocked';
+                    }
+                }
+                
+                if (!filter_var($data['ip'], FILTER_VALIDATE_IP)) {
+                    $errors['ip'] = 'Invalid IP address';
+                }
+            }
+            
+            // validate range
+            if (empty($data['range'])) {
+                $errors['range'] = 'Range is a required field';
+            } else {
+                if (!in_array((int) $data['range'], [8, 16, 24, 32])) {
+                    $errors['range'] = 'Invalid range. Only 8/16/24/32 is supported';
+                }
+            }
+
+            // has error/s
+            if (!empty($errors)) {
+                return [
+                    'status' => 'error',
+                    'errors' => $errors,
+                    'values' => $data
+                ];
+            }
+            
+            // import update
+            $iptable->import($data, [
+                'label',
+                'ip',
+                'range',
+                'note',
+                'bantime',
+                'enabled',
+                'has_change'
+            ]);
+            
+            // setupdated date and set has change
+            $iptable->updated_date = date_create()->format('Y-m-d H:i:s');
+            $iptable->has_change = 1;
+
+            try {
+                $this->model->store($iptable);
+            } catch (\Exception $e) {
+                return [
+                    'status' => 'error',
+                    'errors' => ['store' => $e->getMessage()],
+                    'values' => $data
+                ];
+            }
+            
+            $data = $this->model->export($iptable)[0];
+
+            return [
+                'status' => 'success',
+                'values' => $data
+            ];
+        }
+        
+        /**
+         * Enumarate existing ports used.
+         *
+         * @param array $params
+         * @return array
          */
         public function availablePorts(array $params = array())
         {
@@ -344,6 +464,9 @@ namespace Plinker\Iptables {
 
         /**
          * Check if a host/external port is in use
+         *
+         * @param array $params
+         * @return bool
          */
         public function checkPortInUse(array $params = array())
         {
@@ -352,6 +475,9 @@ namespace Plinker\Iptables {
 
         /**
          * Check if port is within allowed range
+         *
+         * @param array $params
+         * @return bool
          */
         public function checkAllowedPort(array $params = array())
         {
@@ -366,7 +492,18 @@ namespace Plinker\Iptables {
         }
 
         /**
+         * Add port forward
          *
+         *  $iptables->addForward([
+         *      'label' => 'Example',
+         *      'ip' => '10.158.250.5',
+         *      'port' => 2251,
+         *      'srv_type' => 'SSH',
+         *      'srv_port' => 22,
+         *      'enabled' => 1
+         *  ])
+         *
+         * @return array
          */
         public function addForward(array $params = array())
         {
@@ -463,16 +600,20 @@ namespace Plinker\Iptables {
         }
         
         /**
-         * Update webforward
-         * - Treat as findOne with additional param for data,
-         *   this allows to update based on any column.
+         * Update port forward
          *
-         * @usage: $nginx->update('id = ?', [1], $form['values'])
-         *         $nginx->update('name = ?', ['0e5391ac-a37f-41cf-a36b-369df19e592f'], $form['values'])
-         *         $nginx->update('id = ? AND name = ?', [23, '0e5391ac-a37f-41cf-a36b-369df19e592f'], $form['values'])
+         * $iptables->updateForward('id=?', [$forwards[0]['id']], [
+         *      'label' => 'Example',
+         *      'ip' => '10.158.250.5',
+         *      'port' => 2251,
+         *      'srv_type' => 'SSH',
+         *      'srv_port' => 22,
+         *      'enabled' => 1
+         * ]);
          *
+         * @return array
          */
-        public function update(array $params = array())
+        public function updateForward(array $params = array())
         {
             $query = $params[0];
             $id    = (array) $params[1];
@@ -480,198 +621,109 @@ namespace Plinker\Iptables {
             
             $errors = [];
             
-            $route = $this->model->findOne('route', $query, $id);
+            $iptable = $this->model->findOne(['iptable', $query, $id]);
             
             // check found
-            if (empty($route->name)) {
+            if (empty($iptable->name)) {
                 return [
                     'status' => 'error',
-                    'errors' => ['query' => 'Route not found']
+                    'errors' => ['query' => 'Forward not found'],
+                    'values' => $data
                 ];
             }
             
             // dont allow name change
-            if (isset($data['name']) && $data['name'] != $route->name) {
+            if (isset($data['name']) && $data['name'] != $iptable->name) {
                 return [
                     'status' => 'error',
-                    'errors' => ['name' => 'Name cannot be changed']
+                    'errors' => ['name' => 'Name cannot be changed'],
+                    'values' => $data
                 ];
             }
-
-            // validate ip - needs to be change to accept an array
-            if (isset($data['ip'])) {
-                $data['ip'] = trim($data['ip']);
-                if (empty($data['ip'])) {
-                    $errors['ip'] = 'Leave blank or enter a correct IP address to use this option';
-                }
-                //if (!filter_var($data['ip'], FILTER_VALIDATE_IP)) {
-                //	$errors['ip'] = 'Invalid IP address';
-                //}
-            }
+            
+            $errors = [];
 
             // validate port - needs to be change to accept an array
             if (isset($data['port'])) {
                 $data['port'] = trim($data['port']);
                 if (empty($data['port'])) {
-                    $errors['port'] = 'Leave blank or enter a numeric port number to use this option';
+                    $errors['port'] = 'Leave blank or enter a numeric port number to use this option.';
                 }
                 if (!empty($data['port']) && !is_numeric($data['port'])) {
-                    $errors['port'] = 'Invalid port number!';
+                    $errors['port'] = 'Invalid port number.';
                 }
                 if (!empty($data['port']) && is_numeric($data['port']) && $data['port'] > 65535) {
-                    $errors['port'] = 'Invalid port number!';
+                    $errors['port'] = 'Invalid port number.';
                 }
                 if (!empty($data['port']) && is_numeric($data['port']) && $data['port'] == 0) {
-                    $errors['port'] = 'Invalid port number!';
+                    $errors['port'] = 'Invalid port number.';
+                }
+                if (!empty($data['port']) && is_numeric($data['port']) && $this->checkPortInUse([$data['port']])) {
+                    if ($iptable->name != $data['name']) {
+                        $errors['port'] = 'Port already in use.';
+                    }
+                }
+                if (!empty($data['port']) && is_numeric($data['port']) && !$this->checkAllowedPort([$data['port']])) {
+                    $errors['port'] = 'Invalid available port.';
                 }
             }
 
-            // check ssl letsencrypt
-            if (isset($data['letsencrypt'])) {
-                if (!empty($data['letsencrypt'])) {
-                    $data['ssl_type'] = 'letsencrypt';
-                } else {
-                    $data['ssl_type'] = '';
+            // validate port - needs to be change to accept an array
+            if (isset($data['srv_port'])) {
+                $data['srv_port'] = trim($data['srv_port']);
+                if (empty($data['srv_port'])) {
+                    $errors['srv_port'] = 'Leave blank or enter a numeric port number to use this option.';
+                }
+                if (!empty($data['srv_port']) && !is_numeric($data['srv_port'])) {
+                    $errors['srv_port'] = 'Invalid service port number.';
+                }
+                if (!empty($data['srv_port']) && is_numeric($data['srv_port']) && $data['srv_port'] > 65535) {
+                    $errors['srv_port'] = 'Invalid service port number.';
+                }
+                if (!empty($data['srv_port']) && is_numeric($data['srv_port']) && $data['srv_port'] == 0) {
+                    $errors['srv_port'] = 'Invalid service port number.';
                 }
             }
-
-            // validate domains
-            if (isset($data['domains'])) {
-                foreach ((array) $data['domains'] as $key => $row) {
-                    // filter
-                    if (stripos($row, 'http') === 0) {
-                        $row = substr($row, 4);
-                    }
-                    if (stripos($row, 's://') === 0) {
-                        $row = substr($row, 4);
-                    }
-                    if (stripos($row, '://') === 0) {
-                        $row = substr($row, 3);
-                    }
-                    if (stripos($row, '//') === 0) {
-                        $row = substr($row, 2);
-                    }
-    
-                    // check for no dots
-                    if (!substr_count($row, '.')) {
-                        $errors['domains'][$key] = 'Invalid domain name';
-                    }
-    
-                    // has last dot
-                    if (substr($row, -1) == '.') {
-                        $errors['domains'][$key] = 'Invalid domain name';
-                    }
-    
-                    // validate url
-                    if (!filter_var('http://' . $row, FILTER_VALIDATE_URL)) {
-                        $errors['domains'][$key] = 'Invalid domain name';
-                    }
-    
-                    // domain already in use by another route
-                    if ($this->model->count('domain', 'name = ? AND route_id != ?', [$row, $route->id]) > 0) {
-                        $errors['domains'][$key] = 'Domain already in use';
-                    }
-                }
-            }
-
-            // validate upstream
-            if (isset($data['upstreams'])) {
-                foreach ((array) $data['upstreams'] as $key => $row) {
-                    // validate ip
-                    if (!filter_var($row['ip'], FILTER_VALIDATE_IP)) {
-                        $errors['upstreams'][$key] = 'Invalid IP address';
-                    }
-                    if (empty($row['port']) || !is_numeric($row['port'])) {
-                        $errors['upstreams'][$key] = 'Invalid port';
-                    } else {
-                        if ($row['port'] < 1 || $row['port'] > 65535) {
-                            $errors['upstreams'][$key] = 'Invalid port';
-                        }
-                    }
-                }
-            }
-
+            
             // has error/s
             if (!empty($errors)) {
                 return [
                     'status' => 'error',
-                    'errors' => $errors
+                    'errors' => $errors,
+                    'values' => $data
                 ];
             }
-
-            // update route
-            if (isset($data['label'])) {
-                $route->label    = $data['label'];
-            }
-            if (isset($data['ssl_type'])) {
-                $route->ssl_type = preg_replace('/[^a-z]/i', '', $data['ssl_type']);
-            }
-            if (isset($data['enabled'])) {
-                $route->enabled  = !empty($data['enabled']);
-            }
             
-            $route->updated = date_create();
-            $route->has_change = 1;
-
-            // create domains
-            if (isset($data['domains'])) {
-                $route->xownDomainList = [];
-                $domains = [];
-                foreach ((array) $data['domains'] as $row) {
-                    $domain = $this->model->create(
-                        [
-                            'domain',
-                            'name' => str_replace(['http://', 'https://', '//'], '', $row)
-                        ]
-                    );
-                    $domains[] = $domain;
-                }
-                $route->xownDomainList = $domains;
-            }
-
-            // upstreams
-            // set first ip back into route
-            if (isset($data['domains'])) {
-                if (isset($data['upstreams'][0]['ip'])) {
-                    $route->ip = $data['upstreams'][0]['ip'];
-                } else {
-                    $route->ip = !empty($data['ip']) ? $data['ip'] : '';
-                }
-    
-                // set first port back into route
-                if (isset($data['upstreams'][0]['port'])) {
-                    $route->port = (int) $data['upstreams'][0]['port'];
-                } else {
-                    $route->port = !empty($data['port']) ? preg_replace('/[^0-9]/', '', $data['port']) : '';
-                }
-    
-                // create upstreams
-                $route->xownUpstreamList = [];
-                $upstreams = [];
-                foreach ((array) $data['upstreams'] as $row) {
-                    $upstream = $this->model->create(
-                        [
-                            'upstream',
-                            'ip' => $row['ip']
-                        ]
-                    );
-                    $upstream->port = (int) $row['port'];
-                    $upstreams[] = $upstream;
-                }
-                $route->xownUpstreamList = $upstreams;
-            }
+            // import update
+            $iptable->import($data, [
+                'label',
+                'ip',
+                'port',
+                'srv_type',
+                'srv_port',
+                'enabled',
+                'has_change'
+            ]);
+            
+            // setupdated date and set has change
+            $iptable->updated_date = date_create()->format('Y-m-d H:i:s');
+            $iptable->has_change = 1;
 
             try {
-                $this->model->store($route);
+                $this->model->store($iptable);
             } catch (\Exception $e) {
                 return [
                     'status' => 'error',
-                    'errors' => ['store' => $e->getMessage()]
+                    'errors' => ['store' => $e->getMessage()],
+                    'values' => $data
                 ];
             }
             
+            $data = $this->model->export($iptable)[0];
+
             return [
-                'status' => 'success'
+                'status' => 'success',
+                'values' => $data
             ];
         }
     }
