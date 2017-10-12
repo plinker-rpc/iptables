@@ -45,11 +45,13 @@ if (!class_exists('Iptables')) {
          */
         public function build()
         {
-            $rows = $this->task->find('iptable', 'has_change = 1');
+            $rows = $this->task->count('iptable', 'has_change = 1');
 
             if (empty($rows)) {
                 return;
             }
+            
+            $rows = $this->task->find('iptable');
 
             $rules = "# Generated on ".date('D M j H:i:s Y')."\n";
             /* MANGLE */
@@ -69,7 +71,7 @@ if (!class_exists('Iptables')) {
             $rules .= ":POSTROUTING ACCEPT [0:0]\n";
             /* PREROUTING - Port Forwarding */
             foreach ($rows as $row) {
-                if (empty($row['type']) || $row['type'] != 'forward') {
+                if (empty($row['enabled']) || empty($row['type']) || $row['type'] != 'forward' ) {
                     continue;
                 }
                 
@@ -86,7 +88,7 @@ if (!class_exists('Iptables')) {
                     if ($row['srv_type'] == 'SSH' && !empty($row['port']) && !empty($row['ip'])) {
                         $rules .= "-A PREROUTING -p tcp -m tcp --dport ".(int) $row['port']." -j DNAT --to-destination ".$row['ip'].":22\n";
                         $rules .= "-A PREROUTING -p udp -m udp --dport ".(int) $row['port']." -j DNAT --to-destination ".$row['ip'].":22\n";
-                    }
+                    } 
                     // mySQL preset range
                     elseif ($row['srv_type'] == 'mySQL' && !empty($row['port']) && !empty($row['ip'])) {
                         $rules .= "-A PREROUTING -p tcp -m tcp --dport ".(int) $row['port']." -j DNAT --to-destination ".$row['ip'].":3306\n";
@@ -96,7 +98,8 @@ if (!class_exists('Iptables')) {
                     elseif ($row['srv_type'] == 'HTTP' && !empty($row['port']) && !empty($row['ip'])) {
                         $rules .= "-A PREROUTING -p tcp -m tcp --dport ".(int) $row['port']." -j DNAT --to-destination ".$row['ip'].":80\n";
                         $rules .= "-A PREROUTING -p udp -m udp --dport ".(int) $row['port']." -j DNAT --to-destination ".$row['ip'].":80\n";
-                    } else {
+                    } 
+                    else {
                         // custom
                         if (!empty($row['srv_port']) && !empty($row['port']) && !empty($row['ip'])) {
                             $rules .= "-A PREROUTING -p tcp -m tcp --dport ".(int) $row['port']." -j DNAT --to-destination ".$row['ip'].":".(int) $row['srv_port']."\n";
@@ -139,7 +142,7 @@ if (!class_exists('Iptables')) {
             $rules .= "-A OUTPUT -p tcp -m tcp --sport 8443 -m conntrack --ctstate ESTABLISHED -j ACCEPT\n";
             // blocked hosts
             foreach ($rows as $row) {
-                if (empty($row['type']) || $row['type'] != 'block') {
+                if (empty($row['enabled']) || empty($row['type']) || $row['type'] != 'block') {
                     continue;
                 }
                 $rules .= "-A INPUT -s {$row['ip']}/{$row['range']} -j REJECT\n";
