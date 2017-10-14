@@ -93,7 +93,7 @@ namespace Plinker\Iptables {
             }
             
             $return = [];
-            foreach ($result as $row) {
+            foreach ((array) $result as $row) {
                 $return[] = $this->model->export($row)[0];
             }
             
