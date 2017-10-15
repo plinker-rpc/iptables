@@ -99,6 +99,33 @@ namespace Plinker\Iptables {
             
             return $return;
         }
+
+        /**
+         * Count
+         *
+         * @example
+         * <code>
+            <?php
+            $iptables->count('iptable');
+            $iptables->count('iptable', 'id = ? ', [1]);
+            $iptables->count('iptable', 'name = ? ', ['guidV4-value']);
+           </code>
+         *
+         * @param array $params
+         * @return array
+         */
+        public function count(array $params = array())
+        {
+            if (!empty($params[0]) && !empty($params[1]) && !empty($params[2])) {
+                $result = $this->model->count([$params[0], $params[1], $params[2]]);
+            } elseif (!empty($params[0]) && !empty($params[1])) {
+                $result = $this->model->count([$params[0], $params[1]]);
+            } else {
+                $result = $this->model->count([$params[0]]);
+            }
+
+            return (int) $result;
+        }
         
         /**
          * Trigger rebuild
@@ -405,6 +432,27 @@ namespace Plinker\Iptables {
             ];
         }
         
+        /**
+         * Enumarate and return status of ports used.
+         *
+         * @param array $params
+         * @return array
+         */
+        public function status(array $params = array())
+        {
+            return [
+                'blocked_ip_rules' => $this->count(['iptable', 'type=?', ['block']]),
+                'forward_rules' => $this->count(['iptable', 'type=?', ['forward']]),
+                'total' => (int) count(array_merge(
+                    range(2200, 2299),
+                    range(3300, 3399),
+                    range(4300, 4399),
+                    range(8000, 8099)
+                )),
+                'available' => (int) count($this->availablePorts())
+            ];
+        }
+
         /**
          * Enumarate existing ports used.
          *
