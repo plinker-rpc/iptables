@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Task Build NGINX
+ * Task Build Iptables
  */
 
 if (!empty($this->task->config['debug']) && !defined('DEBUG')) {
