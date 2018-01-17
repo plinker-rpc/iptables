@@ -146,7 +146,7 @@ namespace Plinker\Iptables {
                 return [
                     'status' => 'error',
                     'errors' => [
-                        'setup' => $e->getMessage()
+                        'global' => $e->getMessage()
                     ]
                 ];
             }
@@ -241,14 +241,14 @@ namespace Plinker\Iptables {
             if (!is_string($params[0])) {
                 return [
                     'status' => 'error',
-                    'errors' => ['params' => 'First param must be a string']
+                    'errors' => ['global' => 'First param must be a string']
                 ];
             }
 
             if (!is_array($params[1])) {
                 return [
                     'status' => 'error',
-                    'errors' => ['params' => 'Second param must be an array']
+                    'errors' => ['global' => 'Second param must be an array']
                 ];
             }
 
@@ -257,7 +257,7 @@ namespace Plinker\Iptables {
             if (empty($iptable)) {
                 return [
                     'status' => 'error',
-                    'errors' => ['iptable' => 'Not found']
+                    'errors' => ['global' => 'Not found']
                 ];
             }
 
