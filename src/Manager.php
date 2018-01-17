@@ -4,6 +4,51 @@ namespace Plinker\Iptables {
     use Plinker\Tasks;
     use Plinker\Redbean\RedBean as Model;
 
+    /**
+     * Plinker Iptables Manager class
+     *
+     * @example
+     * <code>
+        <?php
+        $config = [
+            // plinker connection
+            'plinker' => [
+                'endpoint' => 'http://127.0.0.1:88',
+                'public_key'  => 'makeSomethingUp',
+                'private_key' => 'againMakeSomethingUp'
+            ],
+
+            // database connection
+            'database' => [
+                'dsn'      => 'sqlite:./database.db',
+                'host'     => '',
+                'name'     => '',
+                'username' => '',
+                'password' => '',
+                'freeze'   => false,
+                'debug'    => false,
+            ]
+        ];
+
+        // init plinker endpoint client
+        $iptables = new \Plinker\Core\Client(
+            // where is the plinker server
+            $config['plinker']['endpoint'],
+
+            // component namespace to interface to
+            'Iptables\Manager',
+
+            // keys
+            $config['plinker']['public_key'],
+            $config['plinker']['private_key'],
+
+            // construct values which you pass to the component
+            $config
+        );
+       </code>
+     *
+     * @package Plinker\Iptables
+     */
     class Manager
     {
         public $config = array();
@@ -18,12 +63,28 @@ namespace Plinker\Iptables {
         }
 
         /**
-         * Apply component tasks
+         * Sets up tasks into \Plinker\Tasks
+         *
+         * @example
+         * <code>
+            <?php
+            $iptables->setup([
+                'build_sleep' => 5,
+                'reconcile_sleep' => 5,
+            ])
+           </code>
+         *
+         * @param array $params
+         * @return array
          */
         public function setup(array $params = array())
         {
             try {
                 // create setup task
+                if ($this->model->count(['tasks', 'name = "iptables.setup" AND run_count > 0']) > 0) {
+                    $this->model->exec(['DELETE from tasks WHERE name = "iptables.setup" AND run_count > 0']);
+                }
+                // add task
                 $task['iptables.setup'] = $this->tasks->create([
                     // name
                     'iptables.setup',
@@ -40,6 +101,9 @@ namespace Plinker\Iptables {
                 $this->tasks->run(['iptables.setup', [], 0]);
 
                 // create build task
+                if ($this->model->count(['tasks', 'name = "iptables.build" AND run_count > 0']) > 0) {
+                    $this->model->exec(['DELETE from tasks WHERE name = "iptables.build" AND run_count > 0']);
+                }
                 $task['iptables.build'] = $this->tasks->create([
                     // name
                     'iptables.build',
@@ -60,18 +124,56 @@ namespace Plinker\Iptables {
                         ($params[0]['build_sleep'] ? (int) $params[0]['build_sleep'] : 5)
                     ]
                  );
+
+                // create composer update task
+                if ($this->model->count(['tasks', 'name = "iptables.composer_update" AND run_count > 0']) > 0) {
+                    $this->model->exec(['DELETE from tasks WHERE name = "iptables.composer_update" AND run_count > 0']);
+                }
+                // add
+                $task['iptables.composer_update'] = $this->tasks->create([
+                    // name
+                    'iptables.composer_update',
+                    // source
+                    "#!/bin/bash\ncomposer update plinker/iptables",
+                    // type
+                    'bash',
+                    // description
+                    'Composer update iptables plinker task',
+                    // default params
+                    []
+                ]);
             } catch (\Exception $e) {
-                return $e->getMessage();
+                return [
+                    'status' => 'error',
+                    'errors' => [
+                        'setup' => $e->getMessage()
+                    ]
+                ];
             }
-            
-            // // clean up old setup tasks
-            $this->model->exec(['DELETE from tasks WHERE name = "iptables.setup" AND run_count > 0']);
 
             return [
                 'status' => 'success'
             ];
         }
-        
+
+        /**
+         * Runs composer update to update package
+         *
+         * @example
+         * <code>
+            <?php
+            $iptables->update_package()
+           </code>
+         *
+         * @param array $params
+         * @return array
+         */
+        public function update_package()
+        {
+            // queue nginx.composer_update task
+            return $this->tasks->run(['iptables.composer_update', [], 0]);
+        }
+
         /**
          * Fetch iptable rules
          *
@@ -91,12 +193,12 @@ namespace Plinker\Iptables {
             } else {
                 $result = $this->model->findAll([$params[0]]);
             }
-            
+
             $return = [];
             foreach ((array) $result as $row) {
                 $return[] = $this->model->export($row)[0];
             }
-            
+
             return $return;
         }
 
@@ -105,7 +207,6 @@ namespace Plinker\Iptables {
          *
          * @example
          * <code>
-            <?php
             $iptables->count('iptable');
             $iptables->count('iptable', 'id = ? ', [1]);
             $iptables->count('iptable', 'name = ? ', ['guidV4-value']);
@@ -126,11 +227,14 @@ namespace Plinker\Iptables {
 
             return (int) $result;
         }
-        
+
         /**
          * Trigger rebuild
          *
-         * $iptables->rebuild('name = ?', [$row['name']]);
+         <code>
+            $iptables->rebuild('name = ?', [$row['name']]);
+         </code>
+         *
          */
         public function rebuild(array $params = array())
         {
@@ -140,14 +244,14 @@ namespace Plinker\Iptables {
                     'errors' => ['params' => 'First param must be a string']
                 ];
             }
-            
+
             if (!is_array($params[1])) {
                 return [
                     'status' => 'error',
                     'errors' => ['params' => 'Second param must be an array']
                 ];
             }
-            
+
             $iptable = $this->model->findOne(['iptable', $params[0], $params[1]]);
 
             if (empty($iptable)) {
@@ -156,11 +260,11 @@ namespace Plinker\Iptables {
                     'errors' => ['iptable' => 'Not found']
                 ];
             }
-            
+
             $iptable->has_change = 1;
 
             $this->model->store($iptable);
-            
+
             return [
                 'status' => 'success'
             ];
@@ -168,6 +272,10 @@ namespace Plinker\Iptables {
 
         /**
          * Remove iptable rule
+         *
+         <code>
+            $iptables->remove('name = ?', [$row['name']]);
+         </code>
          */
         public function remove(array $params = array())
         {
@@ -177,14 +285,14 @@ namespace Plinker\Iptables {
                     'errors' => ['params' => 'First param must be a string']
                 ];
             }
-            
+
             if (!is_array($params[1])) {
                 return [
                     'status' => 'error',
                     'errors' => ['params' => 'Second param must be an array']
                 ];
             }
-            
+
             $iptable = $this->model->findOne(['iptable', $params[0], $params[1]]);
 
             if (empty($iptable)) {
@@ -193,18 +301,27 @@ namespace Plinker\Iptables {
                     'errors' => ['iptable' => 'Not found']
                 ];
             }
-            
+
             $this->model->trash($iptable);
-            
+
             return [
                 'status' => 'success'
             ];
         }
 
         /**
-         * Deletes all route, domain, upstreams and [related tasks]
+         * Deletes iptables and [related tasks]
+         *
+         * @example
+         * <code>
+            <?php
+            $iptables->reset();     // deletes rows
+            $iptables->reset(true); // deletes rows and tasks
+           </code>
+         *
          *
          * @param bool $param[0] - remove tasks
+         * @return array
          */
         public function reset(array $params = array())
         {
@@ -213,14 +330,14 @@ namespace Plinker\Iptables {
             if (!empty($params[0])) {
                 $this->model->exec(['DELETE FROM tasks WHERE name = "iptables.setup"']);
                 $this->model->exec(['DELETE FROM tasks WHERE name = "iptables.build"']);
-                $this->model->exec(['DELETE FROM tasks WHERE name = "iptables.reconcile"']);
+                $this->model->exec(['DELETE FROM tasks WHERE name = "iptables.composer_update"']);
             }
 
             return [
                 'status' => 'success'
             ];
         }
-        
+
         /**
          * Generate a GUIDv4
          */
@@ -247,28 +364,31 @@ namespace Plinker\Iptables {
                     mt_rand(0, 65535)
                 );
             }
-            $bytes[6] = chr(ord($bytes[6]) & 0x0f | 0x40);
-            $bytes[8] = chr(ord($bytes[8]) & 0x3f | 0x80);
+
+            $bytes[6] = chr(ord($bytes[6]) & 0x0f | 0x40); // set version to 0100
+            $bytes[8] = chr(ord($bytes[8]) & 0x3f | 0x80); // set bits 6-7 to 10
             return vsprintf('%s%s-%s-%s-%s-%s%s%s', str_split(bin2hex($bytes), 4));
         }
-        
+
         /**
          * Add IP block
          *
-         * $iptables->addBlock([
-         *   'ip'      => '123.123.123.123',
-         *   'range'   => 32, // 8, 16. 24. 32
-         *   'note'    => 'Port scanned server',
-         *   'enabled' => 1
-         * ]);
+         <code>
+            $iptables->addBlock([
+                'ip'      => '123.123.123.123',
+                'range'   => 32, // 8, 16. 24. 32
+                'note'    => 'Port scanned server',
+                'enabled' => 1
+            ]);
+         </code>
          *
          */
         public function addBlock(array $params = array())
         {
             $data = $params[0];
-            
+
             $errors = [];
-            
+
             // validate ip
             if (empty($data['ip'])) {
                 $errors['ip'] = 'IP is a required field';
@@ -276,12 +396,12 @@ namespace Plinker\Iptables {
                 if ($this->model->count(['iptable', 'ip = ?', [$data['ip']]]) > 0) {
                     $errors['ip'] = 'IP already blocked';
                 }
-                
+
                 if (!filter_var($data['ip'], FILTER_VALIDATE_IP)) {
                     $errors['ip'] = 'Invalid IP address';
                 }
             }
-            
+
             // validate range
             if (empty($data['range'])) {
                 $errors['range'] = 'Range is a required field';
@@ -299,7 +419,7 @@ namespace Plinker\Iptables {
                     'values' => $data
                 ];
             }
-            
+
             // set guid name
             $data['name'] = $this->guidv4();
 
@@ -331,7 +451,7 @@ namespace Plinker\Iptables {
                     'values' => $data
                 ];
             }
-            
+
             $data = $this->model->export($iptable)[0];
 
             return [
@@ -339,31 +459,33 @@ namespace Plinker\Iptables {
                 'values' => $data
             ];
         }
-        
+
         /**
          * Update IP Block
          *
-         * $iptables->updateBlock('id=?', [1], [
-         *     'label' => ''
-         *     'enabled' => 1
-         *     'has_change' => 1
-         *     'ip' => 212.123.123.123
-         *     'range' => 32
-         *     'note' => FooBar
-         *     'bandate' =>
-         *     'bantime' => 0
-         * ])
+         <code>
+            $iptables->updateBlock('id=?', [1], [
+                'label' => ''
+                'enabled' => 1
+                'has_change' => 1
+                'ip' => 212.123.123.123
+                'range' => 32
+                'note' => FooBar
+                'bandate' =>
+                'bantime' => 0
+            ])
+         </code>
          */
         public function updateBlock(array $params = array())
         {
             $query = $params[0];
             $id    = (array) $params[1];
             $data  = (array) $params[2];
-            
+
             $errors = [];
-            
+
             $iptable = $this->model->findOne(['iptable', $query, $id]);
-            
+
             // check found
             if (empty($iptable->name)) {
                 return [
@@ -372,7 +494,7 @@ namespace Plinker\Iptables {
                     'values' => $data
                 ];
             }
-            
+
             // dont allow name change
             if (isset($data['name']) && $data['name'] != $iptable->name) {
                 return [
@@ -381,7 +503,7 @@ namespace Plinker\Iptables {
                     'values' => $data
                 ];
             }
-            
+
             // validate ip
             if (empty($data['ip'])) {
                 $errors['ip'] = 'IP is a required field';
@@ -391,12 +513,12 @@ namespace Plinker\Iptables {
                         $errors['ip'] = 'IP already blocked';
                     }
                 }
-                
+
                 if (!filter_var($data['ip'], FILTER_VALIDATE_IP)) {
                     $errors['ip'] = 'Invalid IP address';
                 }
             }
-            
+
             // validate range
             if (empty($data['range'])) {
                 $errors['range'] = 'Range is a required field';
@@ -414,7 +536,7 @@ namespace Plinker\Iptables {
                     'values' => $data
                 ];
             }
-            
+
             // import update
             $iptable->import($data, [
                 'label',
@@ -425,7 +547,7 @@ namespace Plinker\Iptables {
                 'enabled',
                 'has_change'
             ]);
-            
+
             // setupdated date and set has change
             $iptable->updated_date = date_create();
             $iptable->has_change = 1;
@@ -439,7 +561,7 @@ namespace Plinker\Iptables {
                     'values' => $data
                 ];
             }
-            
+
             $data = $this->model->export($iptable)[0];
 
             return [
@@ -447,9 +569,13 @@ namespace Plinker\Iptables {
                 'values' => $data
             ];
         }
-        
+
         /**
          * Enumarate and return status of ports used.
+         *
+         <code>
+            $iptables-status()
+         </code>
          *
          * @param array $params
          * @return array
@@ -457,7 +583,7 @@ namespace Plinker\Iptables {
         public function status(array $params = array())
         {
             return [
-                'blocked_ip_rules' => $this->count(['iptable', 'type=?', ['block']]),
+                'blocked_rules' => $this->count(['iptable', 'type=?', ['block']]),
                 'forward_rules' => $this->count(['iptable', 'type=?', ['forward']]),
                 'total' => (int) count(array_merge(
                     range(2200, 2299),
@@ -467,6 +593,20 @@ namespace Plinker\Iptables {
                 )),
                 'available' => (int) count($this->availablePorts())
             ];
+        }
+        
+        /**
+         * Get raw current iptables rules.
+         *
+         <code>
+            $iptables-raw()
+         </code>
+         *
+         * @return array
+         */
+        public function raw()
+        {
+            return getcwd().'/iptables.rules.v4';
         }
 
         /**
@@ -575,7 +715,7 @@ namespace Plinker\Iptables {
         public function addForward(array $params = array())
         {
             $data = $params[0];
-            
+
             $errors = [];
 
             // validate port - needs to be change to accept an array
@@ -617,7 +757,7 @@ namespace Plinker\Iptables {
                     $errors['srv_port'] = 'Invalid service port number.';
                 }
             }
-            
+
             // has error/s
             if (!empty($errors)) {
                 return [
@@ -626,7 +766,7 @@ namespace Plinker\Iptables {
                     'values' => $data
                 ];
             }
-            
+
             // set guid name
             $data['name'] = $this->guidv4();
 
@@ -658,7 +798,7 @@ namespace Plinker\Iptables {
                     'values' => $data
                 ];
             }
-            
+
             $data = $this->model->export($iptable)[0];
 
             return [
@@ -666,7 +806,7 @@ namespace Plinker\Iptables {
                 'values' => $data
             ];
         }
-        
+
         /**
          * Update port forward
          *
@@ -686,11 +826,11 @@ namespace Plinker\Iptables {
             $query = $params[0];
             $id    = (array) $params[1];
             $data  = (array) $params[2];
-            
+
             $errors = [];
-            
+
             $iptable = $this->model->findOne(['iptable', $query, $id]);
-            
+
             // check found
             if (empty($iptable->name)) {
                 return [
@@ -699,7 +839,7 @@ namespace Plinker\Iptables {
                     'values' => $data
                 ];
             }
-            
+
             // dont allow name change
             if (isset($data['name']) && $data['name'] != $iptable->name) {
                 return [
@@ -708,7 +848,7 @@ namespace Plinker\Iptables {
                     'values' => $data
                 ];
             }
-            
+
             $errors = [];
 
             // validate port - needs to be change to accept an array
@@ -752,7 +892,7 @@ namespace Plinker\Iptables {
                     $errors['srv_port'] = 'Invalid service port number.';
                 }
             }
-            
+
             // has error/s
             if (!empty($errors)) {
                 return [
@@ -761,7 +901,7 @@ namespace Plinker\Iptables {
                     'values' => $data
                 ];
             }
-            
+
             // import update
             $iptable->import($data, [
                 'label',
@@ -772,7 +912,7 @@ namespace Plinker\Iptables {
                 'enabled',
                 'has_change'
             ]);
-            
+
             // setupdated date and set has change
             $iptable->updated_date = date_create()->format('Y-m-d H:i:s');
             $iptable->has_change = 1;
@@ -786,7 +926,7 @@ namespace Plinker\Iptables {
                     'values' => $data
                 ];
             }
-            
+
             $data = $this->model->export($iptable)[0];
 
             return [
