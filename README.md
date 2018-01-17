@@ -73,8 +73,18 @@ Then navigate to `./vendor/plinker/iptables/scripts` and run `bash install.sh`
 Applies build tasks to plinker/tasks queue.
 
     $iptables->setup([
-        'build_sleep' => 1    
-    ])
+        'build_sleep' => 5,
+        // LXD settings *required
+        'lxd' => [
+            'bridge' => 'lxdbr0',
+            'ip' => '10.158.250.0/24'
+        ],
+        // Docker settings *optional
+        'docker' => [
+            'bridge' => 'docker0',
+            'ip' => '172.17.0.0/16'
+        ]
+    ]);
 
 **Create**
 
