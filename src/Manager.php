@@ -3,7 +3,7 @@ namespace Plinker\Iptables {
 
     use Plinker\Tasks;
     use Plinker\Redbean\RedBean as Model;
-
+    
     /**
      * Plinker Iptables Manager class
      *
@@ -508,12 +508,6 @@ namespace Plinker\Iptables {
             if (empty($data['ip'])) {
                 $errors['ip'] = 'IP is a required field';
             } else {
-                if ($this->model->count(['iptable', 'ip = ?', [$data['ip']]]) > 0) {
-                    if ($iptable->name != $data['name']) {
-                        $errors['ip'] = 'IP already blocked';
-                    }
-                }
-
                 if (!filter_var($data['ip'], FILTER_VALIDATE_IP)) {
                     $errors['ip'] = 'Invalid IP address';
                 }

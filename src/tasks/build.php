@@ -185,8 +185,8 @@ if (!class_exists('Iptables')) {
                 if (empty($row['enabled']) || empty($row['type']) || $row['type'] != 'block') {
                     continue;
                 }
-                
-                echo DEBUG ? $this->log('IPTable rule (BLOCK): '.$row['label']) : null;
+
+                echo DEBUG ? $this->log('IPTable rule (BLOCK): '.$row['ip']) : null;
                 
                 $rules .= "-A INPUT -s {$row['ip']}/{$row['range']} -j REJECT\n";
                 $row->has_change = 0;
