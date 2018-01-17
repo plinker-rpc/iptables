@@ -12,8 +12,12 @@ if (!empty($this->task->config['log']) && !defined('LOG')) {
     define('LOG', true);
 }
 
-if (!empty($params['nat_postrouting']) && !defined('NAT_POSTROUTING')) {
-    define('NAT_POSTROUTING', $params['nat_postrouting']);
+if (!empty($params['lxd']) && !defined('LXD')) {
+    define('LXD', $params['lxd']);
+}
+
+if (!empty($params['docker']) && !defined('DOCKER')) {
+    define('DOCKER', $params['docker']);
 }
 
 if (!class_exists('Iptables')) {
@@ -61,14 +65,22 @@ if (!class_exists('Iptables')) {
             $rules .= ":FORWARD ACCEPT [0:0]\n";
             $rules .= ":OUTPUT ACCEPT [0:0]\n";
             $rules .= ":POSTROUTING ACCEPT [0:0]\n";
-            $rules .= "-A POSTROUTING -o lxcbr0 -p udp -m udp --dport 68 -j CHECKSUM --checksum-fill\n";
+            $rules .= "-A POSTROUTING -o ".LXD['bridge']." -p udp -m udp --dport 68 -j CHECKSUM --checksum-fill\n";
             $rules .= "COMMIT\n";
+            
             /* NAT */
             $rules .= "*nat\n";
             $rules .= ":PREROUTING ACCEPT [0:0]\n";
             $rules .= ":INPUT ACCEPT [0:0]\n";
             $rules .= ":OUTPUT ACCEPT [0:0]\n";
             $rules .= ":POSTROUTING ACCEPT [0:0]\n";
+            if (DOCKER) {
+                $rules .= ":DOCKER - [0:0]\n";
+                $rules .= "-A PREROUTING -m addrtype --dst-type LOCAL -j DOCKER\n";
+                $rules .= "-A OUTPUT ! -d 127.0.0.0/8 -m addrtype --dst-type LOCAL -j DOCKER\n";
+                $rules .= "-A POSTROUTING -s ".DOCKER['ip']." ! -o ".DOCKER['bridge']." -j MASQUERADE\n";
+            }
+            
             /* PREROUTING - Port Forwarding */
             foreach ($rows as $row) {
                 if (empty($row['enabled']) || empty($row['type']) || $row['type'] != 'forward') {
@@ -110,8 +122,11 @@ if (!class_exists('Iptables')) {
                 $row->has_change = 0;
                 $this->task->store($row);
             }
-            $rules .= "-A POSTROUTING -s ".NAT_POSTROUTING." ! -d ".NAT_POSTROUTING." -j MASQUERADE\n";
+            $rules .= "-A POSTROUTING -s ".LXD['ip']." ! -d ".LXD['ip']." -j MASQUERADE\n";
             // iptables -A FORWARD -s 172.16.1.4 -m mac ! --mac-source 00:11:22:33:44:55 -j DROP
+            if (DOCKER) {
+                $rules .= "-A DOCKER -i ".LXD['bridge']." -j RETURN\n";
+            }
             $rules .= "COMMIT\n";
             
             /* FILTER */
@@ -120,25 +135,45 @@ if (!class_exists('Iptables')) {
             $rules .= ":FORWARD ACCEPT [0:0]\n";
             $rules .= ":OUTPUT ACCEPT [0:0]\n";
             $rules .= ":fail2ban-ssh - [0:0]\n";
+            if (DOCKER) {
+                $rules .= ":DOCKER - [0:0]\n";
+                $rules .= ":DOCKER-ISOLATION - [0:0]\n";
+                $rules .= ":DOCKER-USER - [0:0]\n";
+            }
             $rules .= "-A INPUT -p tcp -m multiport --dports 2020 -j fail2ban-ssh\n";
             $rules .= "-A INPUT -p tcp -m multiport --dports 22 -j fail2ban-ssh\n";
             $rules .= "-A INPUT -p tcp -m multiport --dports 2200:2299 -j fail2ban-ssh\n";
-            $rules .= "-A INPUT -i lxcbr0 -p tcp -m tcp --dport 53 -j ACCEPT\n";
-            $rules .= "-A INPUT -i lxcbr0 -p udp -m udp --dport 53 -j ACCEPT\n";
-            $rules .= "-A INPUT -i lxcbr0 -p tcp -m tcp --dport 67 -j ACCEPT\n";
-            $rules .= "-A INPUT -i lxcbr0 -p udp -m udp --dport 67 -j ACCEPT\n";
+            $rules .= "-A INPUT -i ".LXD['bridge']." -p tcp -m tcp --dport 53 -j ACCEPT\n";
+            $rules .= "-A INPUT -i ".LXD['bridge']." -p udp -m udp --dport 53 -j ACCEPT\n";
+            $rules .= "-A INPUT -i ".LXD['bridge']." -p tcp -m tcp --dport 67 -j ACCEPT\n";
+            $rules .= "-A INPUT -i ".LXD['bridge']." -p udp -m udp --dport 67 -j ACCEPT\n";
             $rules .= "-A INPUT -i lo -j ACCEPT\n";
             $rules .= "-A INPUT -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT\n";
             $rules .= "-A INPUT -m conntrack --ctstate INVALID -j DROP\n";
             $rules .= "-A INPUT -p tcp -m tcp --dport 80 -m conntrack --ctstate NEW,ESTABLISHED -j ACCEPT\n";
             $rules .= "-A INPUT -p tcp -m tcp --dport 443 -m conntrack --ctstate NEW,ESTABLISHED -j ACCEPT\n";
             $rules .= "-A INPUT -p tcp -m tcp --dport 8443 -m conntrack --ctstate NEW,ESTABLISHED -j ACCEPT\n";
-            $rules .= "-A FORWARD -o lxcbr0 -j ACCEPT\n";
-            $rules .= "-A FORWARD -i lxcbr0 -j ACCEPT\n";
+            if (DOCKER) {
+                $rules .= "-A FORWARD -j DOCKER-USER\n";
+                $rules .= "-A FORWARD -j DOCKER-ISOLATION\n";
+                $rules .= "-A FORWARD -o ".DOCKER['bridge']." -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT\n";
+                $rules .= "-A FORWARD -o ".DOCKER['bridge']." -j DOCKER\n";
+                $rules .= "-A FORWARD -i ".DOCKER['bridge']." ! -o ".DOCKER['bridge']." -j ACCEPT\n";
+                $rules .= "-A FORWARD -i ".DOCKER['bridge']." -o ".DOCKER['bridge']." -j ACCEPT\n";
+            }
+            $rules .= "-A FORWARD -o ".LXD['bridge']." -j ACCEPT\n";
+            $rules .= "-A FORWARD -i ".LXD['bridge']." -j ACCEPT\n";
             $rules .= "-A OUTPUT -o lo -j ACCEPT\n";
             $rules .= "-A OUTPUT -p tcp -m tcp --sport 80 -m conntrack --ctstate ESTABLISHED -j ACCEPT\n";
             $rules .= "-A OUTPUT -p tcp -m tcp --sport 443 -m conntrack --ctstate ESTABLISHED -j ACCEPT\n";
             $rules .= "-A OUTPUT -p tcp -m tcp --sport 8443 -m conntrack --ctstate ESTABLISHED -j ACCEPT\n";
+            $rules .= "-A OUTPUT -o ".LXD['bridge']." -p tcp -m tcp --sport 53 -j ACCEPT\n";
+            $rules .= "-A OUTPUT -o ".LXD['bridge']." -p udp -m udp --sport 53 -j ACCEPT\n";
+            $rules .= "-A OUTPUT -o ".LXD['bridge']." -p udp -m udp --sport 67 -j ACCEPT\n";
+            if (DOCKER) {
+                $rules .= "-A DOCKER-ISOLATION -j RETURN\n";
+                $rules .= "-A DOCKER-USER -j RETURN\n";
+            }
             // blocked hosts
             foreach ($rows as $row) {
                 if (empty($row['enabled']) || empty($row['type']) || $row['type'] != 'block') {
