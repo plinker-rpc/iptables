@@ -596,11 +596,11 @@ namespace Plinker\Iptables {
             $iptables-raw()
          </code>
          *
-         * @return array
+         * @return string
          */
         public function raw()
         {
-            return getcwd().'/iptables.rules.v4';
+            return file_get_contents(getcwd().'/iptables.rules.v4');
         }
 
         /**
