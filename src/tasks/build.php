@@ -92,7 +92,7 @@ if (!class_exists('Iptables')) {
                     continue;
                 }
                 
-                echo DEBUG ? $this->log('IPTable rule (PREROUTING): '.$row) : null;
+                echo DEBUG ? $this->log('IPTable rule (PREROUTING): '.$row['label']) : null;
     
                 // if server preset type not set
                 if (empty($row['srv_type'])) {
@@ -185,10 +185,14 @@ if (!class_exists('Iptables')) {
                 if (empty($row['enabled']) || empty($row['type']) || $row['type'] != 'block') {
                     continue;
                 }
+                
+                echo DEBUG ? $this->log('IPTable rule (BLOCK): '.$row['label']) : null;
+                
                 $rules .= "-A INPUT -s {$row['ip']}/{$row['range']} -j REJECT\n";
                 $row->has_change = 0;
                 $this->task->store($row);
             }
+            
             $rules .= "-A fail2ban-ssh -j RETURN\n";
             $rules .= "COMMIT\n";
             $rules .= "# Completed on ".date('D M j H:i:s Y');
