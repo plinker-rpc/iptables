@@ -50,6 +50,11 @@ if (!class_exists('Iptables')) {
         public function build()
         {
             $rows = $this->task->count('iptable', 'has_change = 1');
+            
+            // LXD config must be set
+            if (!defined('LXD') || empty(LXD)) {
+                return;
+            }
 
             if (empty($rows)) {
                 return;
@@ -74,7 +79,7 @@ if (!class_exists('Iptables')) {
             $rules .= ":INPUT ACCEPT [0:0]\n";
             $rules .= ":OUTPUT ACCEPT [0:0]\n";
             $rules .= ":POSTROUTING ACCEPT [0:0]\n";
-            if (DOCKER) {
+            if (defined('DOCKER') && !empty(DOCKER)) {
                 $rules .= ":DOCKER - [0:0]\n";
                 $rules .= "-A PREROUTING -m addrtype --dst-type LOCAL -j DOCKER\n";
                 $rules .= "-A OUTPUT ! -d 127.0.0.0/8 -m addrtype --dst-type LOCAL -j DOCKER\n";
@@ -124,7 +129,7 @@ if (!class_exists('Iptables')) {
             }
             $rules .= "-A POSTROUTING -s ".LXD['ip']." ! -d ".LXD['ip']." -j MASQUERADE\n";
             // iptables -A FORWARD -s 172.16.1.4 -m mac ! --mac-source 00:11:22:33:44:55 -j DROP
-            if (DOCKER) {
+            if (defined('DOCKER') && !empty(DOCKER)) {
                 $rules .= "-A DOCKER -i ".LXD['bridge']." -j RETURN\n";
             }
             $rules .= "COMMIT\n";
@@ -135,7 +140,7 @@ if (!class_exists('Iptables')) {
             $rules .= ":FORWARD ACCEPT [0:0]\n";
             $rules .= ":OUTPUT ACCEPT [0:0]\n";
             $rules .= ":fail2ban-ssh - [0:0]\n";
-            if (DOCKER) {
+            if (defined('DOCKER') && !empty(DOCKER)) {
                 $rules .= ":DOCKER - [0:0]\n";
                 $rules .= ":DOCKER-ISOLATION - [0:0]\n";
                 $rules .= ":DOCKER-USER - [0:0]\n";
@@ -153,7 +158,7 @@ if (!class_exists('Iptables')) {
             $rules .= "-A INPUT -p tcp -m tcp --dport 80 -m conntrack --ctstate NEW,ESTABLISHED -j ACCEPT\n";
             $rules .= "-A INPUT -p tcp -m tcp --dport 443 -m conntrack --ctstate NEW,ESTABLISHED -j ACCEPT\n";
             $rules .= "-A INPUT -p tcp -m tcp --dport 8443 -m conntrack --ctstate NEW,ESTABLISHED -j ACCEPT\n";
-            if (DOCKER) {
+            if (defined('DOCKER') && !empty(DOCKER)) {
                 $rules .= "-A FORWARD -j DOCKER-USER\n";
                 $rules .= "-A FORWARD -j DOCKER-ISOLATION\n";
                 $rules .= "-A FORWARD -o ".DOCKER['bridge']." -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT\n";
@@ -170,10 +175,11 @@ if (!class_exists('Iptables')) {
             $rules .= "-A OUTPUT -o ".LXD['bridge']." -p tcp -m tcp --sport 53 -j ACCEPT\n";
             $rules .= "-A OUTPUT -o ".LXD['bridge']." -p udp -m udp --sport 53 -j ACCEPT\n";
             $rules .= "-A OUTPUT -o ".LXD['bridge']." -p udp -m udp --sport 67 -j ACCEPT\n";
-            if (DOCKER) {
+            if (defined('DOCKER') && !empty(DOCKER)) {
                 $rules .= "-A DOCKER-ISOLATION -j RETURN\n";
                 $rules .= "-A DOCKER-USER -j RETURN\n";
             }
+            
             // blocked hosts
             foreach ($rows as $row) {
                 if (empty($row['enabled']) || empty($row['type']) || $row['type'] != 'block') {
