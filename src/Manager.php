@@ -3,7 +3,7 @@ namespace Plinker\Iptables {
 
     use Plinker\Tasks;
     use Plinker\Redbean\RedBean as Model;
-    
+
     /**
      * Plinker Iptables Manager class
      *
