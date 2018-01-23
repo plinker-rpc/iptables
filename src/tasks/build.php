@@ -200,10 +200,10 @@ if (!class_exists('Iptables')) {
             // write to iptables rules file
             echo DEBUG ? $this->log('Applying IPTables rules') : null;
 
-            file_put_contents(getcwd().'/iptables.rules.v4', $rules);
+            file_put_contents($this->task->config['tmp_dir'].'/iptables/rules.v4', $rules);
     
             //apply iptables
-            exec('/sbin/iptables-restore < '.getcwd().'/iptables.rules.v4');
+            exec('/sbin/iptables-restore < '.$this->task->config['tmp_dir'].'/iptables/rules.v4');
             return;
         }
     }

@@ -24,6 +24,11 @@ setup_system() {
     #
     # Install system packages
     sudo apt -qqy install fail2ban
+    
+    if [ ! -d "/var/www/html/.plinker/iptables" ]; then
+      mkdir -p /var/www/html/.plinker/iptables
+      touch /var/www/html/.plinker/iptables/rules.v4
+    fi
 
     #
     ## IPTables Persistent
@@ -32,20 +37,20 @@ setup_system() {
     echo iptables-persistent iptables-persistent/autosave_v6 boolean true | sudo debconf-set-selections
     sudo apt -y install iptables-persistent
     #
-    sudo iptables-save > /etc/iptables/rules.v4
-    sudo iptables-save > /root/host-agent/iptables.rules.v4
+    sudo iptables-save > /var/www/html/.plinker/iptables/rules.v4
+    chmod 644 /var/www/html/.plinker/iptables/rules.v4
 
     echo "#!/bin/sh
 RESTORE=/sbin/iptables-restore
 STAT=/usr/bin/stat
-IPSTATE=/root/host-agent/iptables.rules.v4
+IPSTATE=/var/www/html/.plinker/iptables/iptables.rules.v4
 
 test -x $RESTORE || exit 0
 test -x $STAT || exit 0
 
 # Check permissions and ownership rw------- for root
-if test \`$STAT --format="%a" $IPSTATE\` -ne \"600\"; then
-  echo \"Permissions for $IPSTATE must be 600 rw-------\"
+if test \`$STAT --format="%a" $IPSTATE\` -ne \"644\"; then
+  echo \"Permissions for $IPSTATE must be 644 rw-------\"
   exit 0
 fi
 

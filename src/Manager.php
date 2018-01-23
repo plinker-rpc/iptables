@@ -600,7 +600,7 @@ namespace Plinker\Iptables {
          */
         public function raw()
         {
-            return file_get_contents(getcwd().'/iptables.rules.v4');
+            return file_get_contents($this->config['tmp_dir'].'/iptables/rules.v4');
         }
 
         /**
