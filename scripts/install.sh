@@ -49,15 +49,15 @@ test -x $RESTORE || exit 0
 test -x $STAT || exit 0
 
 # Check permissions and ownership rw------- for root
-if test \`$STAT --format="%a" $IPSTATE\` -ne \"644\"; then
-  echo \"Permissions for $IPSTATE must be 644 rw-------\"
-  exit 0
-fi
+#if test \`$STAT --format="%a" $IPSTATE\` -ne \"644\"; then
+#  echo \"Permissions for $IPSTATE must be 644 rw-------\"
+#  exit 0
+#fi
 
-if test \`$STAT --format="%u" $IPSTATE\` -ne \"0\"; then
-  echo \"The superuser must have ownership for $IPSTATE uid 0\"
-  exit 0
-fi
+#if test \`$STAT --format="%u" $IPSTATE\` -ne \"0\"; then
+#  echo \"The superuser must have ownership for $IPSTATE uid 0\"
+#  exit 0
+#fi
 
 $RESTORE < $IPSTATE
 " > /etc/network/if-pre-up.d/iptables

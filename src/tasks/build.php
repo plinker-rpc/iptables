@@ -8,6 +8,8 @@ if (!empty($this->task->config['debug']) && !defined('DEBUG')) {
     define('DEBUG', true);
 }
 
+define('TMP_DIR', (!empty($this->task->config['tmp_dir']) ? $this->task->config['tmp_dir'] : './.plinker'));
+
 if (!empty($this->task->config['log']) && !defined('LOG')) {
     define('LOG', true);
 }
@@ -25,20 +27,6 @@ if (!class_exists('Iptables')) {
     {
         public function __construct($task)
         {
-            $task->config = array_merge([
-                // database connection
-                'database' => [
-                    'dsn'      => 'sqlite:./.plinker/database.db',
-                    'host'     => '',
-                    'name'     => '',
-                    'username' => '',
-                    'password' => '',
-                    'freeze'   => false,
-                    'debug'    => false,
-                ],
-                'tmp_dir' => './.plinker'
-            ], $task->config);
-            
             $this->task = $task;
         }
         
@@ -48,11 +36,13 @@ if (!class_exists('Iptables')) {
         private function log($message)
         {
             if (LOG) {
-                if (!file_exists($this->task->config['tmp_dir'].'/logs')) {
-                    mkdir($this->task->config['tmp_dir'].'/logs', 0775, true);
+                if (!file_exists(TMP_DIR.'/logs')) {
+                    mkdir(TMP_DIR.'/logs', 0755, true);
                 }
                 $log  = '['.date("c").'] '.$message.PHP_EOL;
-                file_put_contents($this->task->config['tmp_dir'].'/logs/'.date("d-m-Y").'.txt', $log, FILE_APPEND);
+                file_put_contents(TMP_DIR.'/logs/'.date("d-m-Y").'.txt', $log, FILE_APPEND);
+                
+                shell_exec('chown www-data:www-data '.TMP_DIR.'/logs -R');
             }
             
             echo DEBUG ? " - ".$message."\n" : null;
@@ -213,11 +203,17 @@ if (!class_exists('Iptables')) {
 
             // write to iptables rules file
             echo DEBUG ? $this->log('Applying IPTables rules') : null;
+            
+            // check tmp path exists
+            if (!file_exists(TMP_DIR.'/iptables')) {
+                mkdir(TMP_DIR.'/iptables', 0755, true);
+                shell_exec('chown www-data:www-data '.TMP_DIR.'/iptables -R');
+            }
 
-            file_put_contents($this->task->config['tmp_dir'].'/iptables/rules.v4', $rules);
+            file_put_contents(TMP_DIR.'/iptables/rules.v4', $rules);
     
             //apply iptables
-            exec('/sbin/iptables-restore < '.$this->task->config['tmp_dir'].'/iptables/rules.v4');
+            exec('/sbin/iptables-restore < '.TMP_DIR.'/iptables/rules.v4');
             return;
         }
     }
