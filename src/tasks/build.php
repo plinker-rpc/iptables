@@ -8,7 +8,9 @@ if (!empty($this->task->config['debug']) && !defined('DEBUG')) {
     define('DEBUG', true);
 }
 
-define('TMP_DIR', (!empty($this->task->config['tmp_dir']) ? $this->task->config['tmp_dir'] : './.plinker'));
+if (!defined('TMP_DIR')) {
+    define('TMP_DIR', (!empty($this->task->config['tmp_dir']) ? $this->task->config['tmp_dir'] : './.plinker'));
+}
 
 if (!empty($this->task->config['log']) && !defined('LOG')) {
     define('LOG', true);
