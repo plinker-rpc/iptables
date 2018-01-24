@@ -37,7 +37,7 @@ Then navigate to `./vendor/plinker/iptables/scripts` and run `bash install.sh`
     
         // database connection
         'database' => [
-            'dsn'      => 'sqlite:./database.db',
+            'dsn'      => 'sqlite:./.plinker/database.db',
             'host'     => '',
             'name'     => '',
             'username' => '',
