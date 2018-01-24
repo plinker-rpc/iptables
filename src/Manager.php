@@ -65,7 +65,8 @@ namespace Plinker\Iptables {
                     'password' => '',
                     'freeze'   => false,
                     'debug'    => false,
-                ]
+                ],
+                'tmp_dir' => './.plinker'
             ], $config);
 
             // load models
