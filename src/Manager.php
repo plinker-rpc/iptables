@@ -55,7 +55,18 @@ namespace Plinker\Iptables {
 
         public function __construct(array $config = array())
         {
-            $this->config = $config;
+            $this->config = array_merge([
+                // database connection
+                'database' => [
+                    'dsn'      => 'sqlite:./.plinker/database.db',
+                    'host'     => '',
+                    'name'     => '',
+                    'username' => '',
+                    'password' => '',
+                    'freeze'   => false,
+                    'debug'    => false,
+                ]
+            ], $config);
 
             // load models
             $this->model = new Model($this->config['database']);
