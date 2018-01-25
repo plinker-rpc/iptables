@@ -28,7 +28,7 @@ if (!class_exists('Iptables')) {
     class Iptables
     {
         /**
-         * 
+         *
          */
         public function __construct($task)
         {
