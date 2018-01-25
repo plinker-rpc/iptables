@@ -27,6 +27,9 @@ if (!empty($params['docker']) && !defined('DOCKER')) {
 if (!class_exists('Iptables')) {
     class Iptables
     {
+        /**
+         * 
+         */
         public function __construct($task)
         {
             $this->task = $task;
