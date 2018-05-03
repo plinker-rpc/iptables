@@ -1,0 +1,556 @@
+
+
+
+
+<!DOCTYPE html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      <meta http-equiv="x-ua-compatible" content="ie=edge">
+      
+        <meta name="description" content="PlinkerRPC PHP client/server makes it really easy to link and execute generic PHP components on remote systems, while maintaining the feel of a local method call.">
+      
+      
+        <link rel="canonical" href="https://github.com/plinker-rpc/">
+      
+      
+        <meta name="author" content="Lawrence Cherone">
+      
+      
+        <meta name="lang:clipboard.copy" content="Copy to clipboard">
+      
+        <meta name="lang:clipboard.copied" content="Copied to clipboard">
+      
+        <meta name="lang:search.language" content="en">
+      
+        <meta name="lang:search.pipeline.stopwords" content="True">
+      
+        <meta name="lang:search.pipeline.trimmer" content="True">
+      
+        <meta name="lang:search.result.none" content="No matching documents">
+      
+        <meta name="lang:search.result.one" content="1 matching document">
+      
+        <meta name="lang:search.result.other" content="# matching documents">
+      
+        <meta name="lang:search.tokenizer" content="[\s\-]+">
+      
+      <link rel="shortcut icon" href="./assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-0.17.3, mkdocs-material-2.7.3">
+    
+    
+      
+        <title>PlinkerRPC</title>
+      
+    
+    
+      <link rel="stylesheet" href="./assets/stylesheets/application.8d40d89b.css">
+      
+        <link rel="stylesheet" href="./assets/stylesheets/application-palette.6079476c.css">
+      
+    
+    
+      <script src="./assets/javascripts/modernizr.1aa3b519.js"></script>
+    
+    
+      <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
+      
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Ubuntu:300,400,400i,700|Ubuntu+Mono">
+        <style>body,input{font-family:"Ubuntu","Helvetica Neue",Helvetica,Arial,sans-serif}code,kbd,pre{font-family:"Ubuntu Mono","Courier New",Courier,monospace}</style>
+      
+      <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    
+    
+    
+  </head>
+  
+    
+    
+    <body dir="ltr" data-md-color-primary="blue" data-md-color-accent="blue">
+  
+    <svg class="md-svg">
+      <defs>
+        
+        
+          <svg xmlns="http://www.w3.org/2000/svg" width="416" height="448"
+    viewBox="0 0 416 448" id="github">
+  <path fill="currentColor" d="M160 304q0 10-3.125 20.5t-10.75 19-18.125
+        8.5-18.125-8.5-10.75-19-3.125-20.5 3.125-20.5 10.75-19 18.125-8.5
+        18.125 8.5 10.75 19 3.125 20.5zM320 304q0 10-3.125 20.5t-10.75
+        19-18.125 8.5-18.125-8.5-10.75-19-3.125-20.5 3.125-20.5 10.75-19
+        18.125-8.5 18.125 8.5 10.75 19 3.125 20.5zM360
+        304q0-30-17.25-51t-46.75-21q-10.25 0-48.75 5.25-17.75 2.75-39.25
+        2.75t-39.25-2.75q-38-5.25-48.75-5.25-29.5 0-46.75 21t-17.25 51q0 22 8
+        38.375t20.25 25.75 30.5 15 35 7.375 37.25 1.75h42q20.5 0
+        37.25-1.75t35-7.375 30.5-15 20.25-25.75 8-38.375zM416 260q0 51.75-15.25
+        82.75-9.5 19.25-26.375 33.25t-35.25 21.5-42.5 11.875-42.875 5.5-41.75
+        1.125q-19.5 0-35.5-0.75t-36.875-3.125-38.125-7.5-34.25-12.875-30.25-20.25-21.5-28.75q-15.5-30.75-15.5-82.75
+        0-59.25 34-99-6.75-20.5-6.75-42.5 0-29 12.75-54.5 27 0 47.5 9.875t47.25
+        30.875q36.75-8.75 77.25-8.75 37 0 70 8 26.25-20.5
+        46.75-30.25t47.25-9.75q12.75 25.5 12.75 54.5 0 21.75-6.75 42 34 40 34
+        99.5z" />
+</svg>
+        
+      </defs>
+    </svg>
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="search" autocomplete="off">
+    <label class="md-overlay" data-md-component="overlay" for="drawer"></label>
+    
+      <a href="#installing" tabindex="1" class="md-skip">
+        Skip to content
+      </a>
+    
+    
+      <header class="md-header" data-md-component="header">
+  <nav class="md-header-nav md-grid">
+    <div class="md-flex">
+      <div class="md-flex__cell md-flex__cell--shrink">
+        <a href="https://github.com/plinker-rpc" title="PlinkerRPC" class="md-header-nav__button md-logo">
+          
+            <i class="md-icon">language</i>
+          
+        </a>
+      </div>
+      <div class="md-flex__cell md-flex__cell--shrink">
+        <label class="md-icon md-icon--menu md-header-nav__button" for="drawer"></label>
+      </div>
+      <div class="md-flex__cell md-flex__cell--stretch">
+        <div class="md-flex__ellipsis md-header-nav__title" data-md-component="title">
+          
+            
+              <span class="md-header-nav__topic">
+                PlinkerRPC
+              </span>
+              <span class="md-header-nav__topic">
+                Home
+              </span>
+            
+          
+        </div>
+      </div>
+      <div class="md-flex__cell md-flex__cell--shrink">
+        
+          
+            <label class="md-icon md-icon--search md-header-nav__button" for="search"></label>
+            
+<div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="query" data-md-state="active">
+      <label class="md-icon md-search__icon" for="search"></label>
+      <button type="reset" class="md-icon md-search__icon" data-md-component="reset" tabindex="-1">
+        &#xE5CD;
+      </button>
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="result">
+          <div class="md-search-result__meta">
+            Type to start searching
+          </div>
+          <ol class="md-search-result__list"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+          
+        
+      </div>
+      
+        <div class="md-flex__cell md-flex__cell--shrink">
+          <div class="md-header-nav__source">
+            
+
+
+  
+
+
+  <a href="https://github.com/plinker-rpc" title="Go to repository" class="md-source" data-md-source="github">
+    
+      <div class="md-source__icon">
+        <svg viewBox="0 0 24 24" width="24" height="24">
+          <use xlink:href="#github" width="24" height="24"></use>
+        </svg>
+      </div>
+    
+    <div class="md-source__repository">
+      plinker-rpc
+    </div>
+  </a>
+
+          </div>
+        </div>
+      
+    </div>
+  </nav>
+</header>
+    
+    <div class="md-container">
+      
+        
+      
+      
+      <main class="md-main">
+        <div class="md-main__inner md-grid" data-md-component="container">
+          
+            
+              <div class="md-sidebar md-sidebar--primary" data-md-component="navigation">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    <nav class="md-nav md-nav--primary" data-md-level="0">
+  <label class="md-nav__title md-nav__title--site" for="drawer">
+    <span class="md-nav__button md-logo">
+      
+        <i class="md-icon">language</i>
+      
+    </span>
+    PlinkerRPC
+  </label>
+  
+    <div class="md-nav__source">
+      
+
+
+  
+
+
+  <a href="https://github.com/plinker-rpc" title="Go to repository" class="md-source" data-md-source="github">
+    
+      <div class="md-source__icon">
+        <svg viewBox="0 0 24 24" width="24" height="24">
+          <use xlink:href="#github" width="24" height="24"></use>
+        </svg>
+      </div>
+    
+    <div class="md-source__repository">
+      plinker-rpc
+    </div>
+  </a>
+
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+  
+
+
+  <li class="md-nav__item md-nav__item--active">
+    
+    <input class="md-toggle md-nav__toggle" data-md-toggle="toc" type="checkbox" id="toc">
+    
+    
+      <label class="md-nav__link md-nav__link--active" for="toc">
+        Home
+      </label>
+    
+    <a href="." title="Home" class="md-nav__link md-nav__link--active">
+      Home
+    </a>
+    
+      
+<nav class="md-nav md-nav--secondary">
+  
+  
+  
+    <label class="md-nav__title" for="toc">Table of contents</label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#installing" title="::Installing::" class="md-nav__link">
+    ::Installing::
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#client" title="::Client::" class="md-nav__link">
+    ::Client::
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#calls" title="::Calls::" class="md-nav__link">
+    ::Calls::
+  </a>
+  
+</li>
+      
+      
+      
+      
+      
+    </ul>
+  
+</nav>
+    
+  </li>
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="toc">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+<nav class="md-nav md-nav--secondary">
+  
+  
+  
+    <label class="md-nav__title" for="toc">Table of contents</label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#installing" title="::Installing::" class="md-nav__link">
+    ::Installing::
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#client" title="::Client::" class="md-nav__link">
+    ::Client::
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#calls" title="::Calls::" class="md-nav__link">
+    ::Calls::
+  </a>
+  
+</li>
+      
+      
+      
+      
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          <div class="md-content">
+            <article class="md-content__inner md-typeset">
+              
+                
+                
+                  <h1>Home</h1>
+                
+                <p>PlinkerRPC PHP client/server makes it really easy to link and execute PHP 
+component classes on remote systems, while maintaining the feel of a local 
+method call.</p>
+<p>WIP: control iptables though rpc</p>
+<h2 id="installing">::Installing::<a class="headerlink" href="#installing" title="Permanent link">&para;</a></h2>
+<p>Bring in the project with composer:</p>
+<div class="codehilite"><pre><span></span>{
+    &quot;require&quot;: {
+        &quot;plinker/iptables&quot;: &quot;&gt;=v0.1&quot;
+    }
+}
+</pre></div>
+
+
+<p>Then navigate to <code class="codehilite">./vendor/plinker/iptables/scripts</code> and run <code class="codehilite">bash install.sh</code></p>
+<h2 id="client">::Client::<a class="headerlink" href="#client" title="Permanent link">&para;</a></h2>
+<div class="codehilite"><pre><span></span><span class="cm">/**</span>
+<span class="cm"> * Plinker Config</span>
+<span class="cm"> */</span><span class="w"></span>
+<span class="err">$</span>config<span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="err">[</span><span class="w"></span>
+<span class="w">    </span><span class="o">//</span><span class="w"> </span>plinker<span class="w"> </span>connection<span class="w"></span>
+<span class="w">    </span><span class="s">&#39;plinker&#39;</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="err">[</span><span class="w"></span>
+<span class="w">        </span><span class="s">&#39;endpoint&#39;</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="s">&#39;http://127.0.0.1:88&#39;</span><span class="o">,</span><span class="w"></span>
+<span class="w">        </span><span class="s">&#39;public_key&#39;</span><span class="w">  </span><span class="o">=&gt;</span><span class="w"> </span><span class="s">&#39;makeSomethingUp&#39;</span><span class="o">,</span><span class="w"></span>
+<span class="w">        </span><span class="s">&#39;private_key&#39;</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="s">&#39;againMakeSomethingUp&#39;</span><span class="w"></span>
+<span class="w">    </span><span class="err">]</span><span class="o">,</span><span class="w"></span>
+
+<span class="w">    </span><span class="o">//</span><span class="w"> </span>database<span class="w"> </span>connection<span class="w"></span>
+<span class="w">    </span><span class="s">&#39;database&#39;</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="err">[</span><span class="w"></span>
+<span class="w">        </span><span class="s">&#39;dsn&#39;</span><span class="w">      </span><span class="o">=&gt;</span><span class="w"> </span><span class="s">&#39;sqlite:./.plinker/database.db&#39;</span><span class="o">,</span><span class="w"></span>
+<span class="w">        </span><span class="s">&#39;host&#39;</span><span class="w">     </span><span class="o">=&gt;</span><span class="w"> </span><span class="s">&#39;&#39;</span><span class="o">,</span><span class="w"></span>
+<span class="w">        </span><span class="s">&#39;name&#39;</span><span class="w">     </span><span class="o">=&gt;</span><span class="w"> </span><span class="s">&#39;&#39;</span><span class="o">,</span><span class="w"></span>
+<span class="w">        </span><span class="s">&#39;username&#39;</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="s">&#39;&#39;</span><span class="o">,</span><span class="w"></span>
+<span class="w">        </span><span class="s">&#39;password&#39;</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="s">&#39;&#39;</span><span class="o">,</span><span class="w"></span>
+<span class="w">        </span><span class="s">&#39;freeze&#39;</span><span class="w">   </span><span class="o">=&gt;</span><span class="w"> </span>false<span class="o">,</span><span class="w"></span>
+<span class="w">        </span><span class="s">&#39;debug&#39;</span><span class="w">    </span><span class="o">=&gt;</span><span class="w"> </span>false<span class="o">,</span><span class="w"></span>
+<span class="w">    </span><span class="err">]</span><span class="w"></span>
+<span class="err">];</span><span class="w"></span>
+
+<span class="o">//</span><span class="w"> </span>init<span class="w"> </span>plinker<span class="w"> </span>endpoint<span class="w"> </span>client<span class="w"></span>
+<span class="err">$</span>iptables<span class="w"> </span><span class="o">=</span><span class="w"> </span>new<span class="w"> </span><span class="o">\</span>Plinker<span class="o">\</span>Core<span class="o">\</span>Client<span class="o">(</span><span class="w"></span>
+<span class="w">    </span><span class="o">//</span><span class="w"> </span>where<span class="w"> </span>is<span class="w"> </span>the<span class="w"> </span>plinker<span class="w"> </span>server<span class="w"></span>
+<span class="w">    </span><span class="err">$</span>config<span class="err">[</span><span class="s">&#39;plinker&#39;</span><span class="err">][</span><span class="s">&#39;endpoint&#39;</span><span class="err">]</span><span class="o">,</span><span class="w"></span>
+
+<span class="w">    </span><span class="o">//</span><span class="w"> </span>component<span class="w"> </span>namespace<span class="w"> </span><span class="kr">to</span><span class="w"> </span>interface<span class="w"> </span><span class="kr">to</span><span class="w"></span>
+<span class="w">    </span><span class="s">&#39;Iptables\Manager&#39;</span><span class="o">,</span><span class="w"></span>
+
+<span class="w">    </span><span class="o">//</span><span class="w"> </span>keys<span class="w"></span>
+<span class="w">    </span><span class="err">$</span>config<span class="err">[</span><span class="s">&#39;plinker&#39;</span><span class="err">][</span><span class="s">&#39;public_key&#39;</span><span class="err">]</span><span class="o">,</span><span class="w"></span>
+<span class="w">    </span><span class="err">$</span>config<span class="err">[</span><span class="s">&#39;plinker&#39;</span><span class="err">][</span><span class="s">&#39;private_key&#39;</span><span class="err">]</span><span class="o">,</span><span class="w"></span>
+
+<span class="w">    </span><span class="o">//</span><span class="w"> </span>construct<span class="w"> </span>values<span class="w"> </span>which<span class="w"> </span>you<span class="w"> </span>pass<span class="w"> </span><span class="kr">to</span><span class="w"> </span>the<span class="w"> </span>component<span class="o">,</span><span class="w"> </span>which<span class="w"> </span>the<span class="w"> </span>component<span class="w"></span>
+<span class="w">    </span><span class="o">//</span><span class="w">  </span>will<span class="w"> </span>use<span class="o">,</span><span class="w"> </span><span class="kr">for</span><span class="w"> </span>RedbeanPHP<span class="w"> </span>component<span class="w"> </span>you<span class="w"> </span>would<span class="w"> </span>send<span class="w"> </span>the<span class="w"> </span>database<span class="w"> </span>connection<span class="w"></span>
+<span class="w">    </span><span class="o">//</span><span class="w">  </span>dont<span class="w"> </span>worry<span class="w"> </span>its<span class="w"> </span>AES<span class="w"> </span>encrypted<span class="o">.</span><span class="w"> </span><span class="nl">see</span><span class="o">:</span><span class="w"> </span>encryption<span class="o">-</span>proof<span class="o">.</span>txt<span class="w"></span>
+<span class="w">    </span><span class="err">$</span>config<span class="w"></span>
+<span class="o">)</span><span class="err">;</span><span class="w"></span>
+</pre></div>
+
+
+<h2 id="calls">::Calls::<a class="headerlink" href="#calls" title="Permanent link">&para;</a></h2>
+<p><strong>Setup</strong></p>
+<p>Applies build tasks to plinker/tasks queue.</p>
+<div class="codehilite"><pre><span></span>$iptables-&gt;setup([
+    &#39;build_sleep&#39; =&gt; 5,
+    // LXD settings *required
+    &#39;lxd&#39; =&gt; [
+        &#39;bridge&#39; =&gt; &#39;lxdbr0&#39;,
+        &#39;ip&#39; =&gt; &#39;10.158.250.0/24&#39;
+    ],
+    // Docker settings *optional
+    &#39;docker&#39; =&gt; [
+        &#39;bridge&#39; =&gt; &#39;docker0&#39;,
+        &#39;ip&#39; =&gt; &#39;172.17.0.0/16&#39;
+    ]
+]);
+</pre></div>
+
+
+<p><strong>Create</strong></p>
+<div class="codehilite"><pre><span></span>$route = [
+    &#39;label&#39; =&gt; &#39;Example&#39;,
+    &#39;domains&#39; =&gt; [
+        &#39;example.com&#39;,
+        &#39;www.example.com&#39;
+    ],
+    &#39;upstreams&#39; =&gt; [
+        [&#39;ip&#39; =&gt; &#39;127.0.0.1&#39;, &#39;port&#39; =&gt; &#39;80&#39;]
+    ],
+    &#39;letsencrypt&#39; =&gt; 0,
+    &#39;enabled&#39; =&gt; 1
+];
+$iptables-&gt;add($route);
+</pre></div>
+
+
+<p><strong>Update</strong></p>
+<div class="codehilite"><pre><span></span>$route = [
+    &#39;label&#39; =&gt; &#39;Example Changed&#39;,
+    &#39;domains&#39; =&gt; [
+        &#39;example.com&#39;,
+        &#39;www.example.com&#39;,
+        &#39;new.example.com&#39;,
+    ],
+    &#39;upstreams&#39; =&gt; [
+        [&#39;ip&#39; =&gt; 10.0.0.1&#39;, &#39;port&#39; =&gt; &#39;8080&#39;]
+    ],
+    &#39;letsencrypt&#39; =&gt; 0,
+    &#39;enabled&#39; =&gt; 1
+];
+// column, value, $data
+$iptables-&gt;update(&#39;id = ?&#39;, [1], $route);
+</pre></div>
+
+
+<p><strong>Fetch</strong></p>
+<div class="codehilite"><pre><span></span>$iptables-&gt;fetch(&#39;route&#39;);
+$iptables-&gt;fetch(&#39;route&#39;, &#39;id = ?&#39;, [1]);
+$iptables-&gt;fetch(&#39;route&#39;, &#39;name = ?&#39;, [&#39;some-guidV4-value&#39;])
+</pre></div>
+
+
+<p><strong>Remove</strong></p>
+<div class="codehilite"><pre><span></span>$iptables-&gt;remove(&#39;name = ?&#39;, [$route[&#39;name&#39;]]);
+</pre></div>
+
+
+<p><strong>Rebuild</strong></p>
+<div class="codehilite"><pre><span></span>$iptables-&gt;rebuild(&#39;name = ?&#39;, [$route[&#39;name&#39;]]);
+</pre></div>
+
+
+<p><strong>Reset</strong></p>
+<div class="codehilite"><pre><span></span>// dont remove tasks
+$iptables-&gt;reset();
+
+// remove tasks
+$iptables-&gt;reset(true);
+</pre></div>
+
+
+<p>See the <a href="https://github.com/plinker-rpc">organisations page</a> for additional 
+components and examples.</p>
+                
+                  
+                
+              
+              
+                
+
+
+              
+            </article>
+          </div>
+        </div>
+      </main>
+      
+        
+<footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-footer-copyright">
+        
+          <div class="md-footer-copyright__highlight">
+            Copyright &copy; 2018 Lawrence Cherone - PlinkerRPC
+          </div>
+        
+        powered by
+        <a href="http://www.mkdocs.org">MkDocs</a>
+        and
+        <a href="https://squidfunk.github.io/mkdocs-material/">
+          Material for MkDocs</a>
+      </div>
+      
+        
+  <div class="md-footer-social">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    
+      <a href="https://github.com/plinker-rpc" class="md-footer-social__link fa fa-github"></a>
+    
+  </div>
+
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    
+      <script src="./assets/javascripts/application.b438e6c5.js"></script>
+      
+      <script>app.initialize({version:"0.17.3",url:{base:"."}})</script>
+      
+    
+    
+      
+    
+  </body>
+</html>
