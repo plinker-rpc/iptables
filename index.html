@@ -298,15 +298,8 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#create" title="Create" class="md-nav__link">
-    Create
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#update" title="Update" class="md-nav__link">
-    Update
+  <a href="#update-package" title="Update Package" class="md-nav__link">
+    Update Package
   </a>
   
 </li>
@@ -319,8 +312,8 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#remove" title="Remove" class="md-nav__link">
-    Remove
+  <a href="#count" title="Count" class="md-nav__link">
+    Count
   </a>
   
 </li>
@@ -333,8 +326,78 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#remove" title="Remove" class="md-nav__link">
+    Remove
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#reset" title="Reset" class="md-nav__link">
     Reset
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#add-block" title="Add Block" class="md-nav__link">
+    Add Block
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#update-block" title="Update Block" class="md-nav__link">
+    Update Block
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#status" title="Status" class="md-nav__link">
+    Status
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#raw" title="Raw" class="md-nav__link">
+    Raw
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#available-ports" title="Available Ports" class="md-nav__link">
+    Available Ports
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#check-port-in-use" title="Check Port In Use" class="md-nav__link">
+    Check Port In Use
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#check-allowed-port" title="Check Allowed Port" class="md-nav__link">
+    Check Allowed Port
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#add-forward" title="Add Forward" class="md-nav__link">
+    Add Forward
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#update-forward" title="Update Forward" class="md-nav__link">
+    Update Forward
   </a>
   
 </li>
@@ -454,15 +517,8 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#create" title="Create" class="md-nav__link">
-    Create
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#update" title="Update" class="md-nav__link">
-    Update
+  <a href="#update-package" title="Update Package" class="md-nav__link">
+    Update Package
   </a>
   
 </li>
@@ -475,8 +531,8 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#remove" title="Remove" class="md-nav__link">
-    Remove
+  <a href="#count" title="Count" class="md-nav__link">
+    Count
   </a>
   
 </li>
@@ -489,8 +545,78 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#remove" title="Remove" class="md-nav__link">
+    Remove
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#reset" title="Reset" class="md-nav__link">
     Reset
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#add-block" title="Add Block" class="md-nav__link">
+    Add Block
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#update-block" title="Update Block" class="md-nav__link">
+    Update Block
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#status" title="Status" class="md-nav__link">
+    Status
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#raw" title="Raw" class="md-nav__link">
+    Raw
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#available-ports" title="Available Ports" class="md-nav__link">
+    Available Ports
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#check-port-in-use" title="Check Port In Use" class="md-nav__link">
+    Check Port In Use
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#check-allowed-port" title="Check Allowed Port" class="md-nav__link">
+    Check Allowed Port
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#add-forward" title="Add Forward" class="md-nav__link">
+    Add Forward
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#update-forward" title="Update Forward" class="md-nav__link">
+    Update Forward
   </a>
   
 </li>
@@ -636,7 +762,7 @@
 <tr>
 <td>options</td>
 <td>array</td>
-<td>Task options</td>
+<td>Build options</td>
 <td></td>
 </tr>
 </tbody>
@@ -644,16 +770,7 @@
 <p><strong>Call</strong></p>
 <div class="codehilite"><pre><span></span>$client-&gt;iptables-&gt;setup([
     &#39;build_sleep&#39; =&gt; 5,
-    // LXD settings *required
-    &#39;lxd&#39; =&gt; [
-        &#39;bridge&#39; =&gt; &#39;lxdbr0&#39;,
-        &#39;ip&#39; =&gt; &#39;10.158.250.0/24&#39;
-    ],
-    // Docker settings *optional
-    &#39;docker&#39; =&gt; [
-        &#39;bridge&#39; =&gt; &#39;docker0&#39;,
-        &#39;ip&#39; =&gt; &#39;172.17.0.0/16&#39;
-    ]
+    &#39;reconcile_sleep&#39; =&gt; 5,
 ]);
 </pre></div>
 
@@ -663,46 +780,10 @@
 </pre></div>
 
 
-<h3 id="create">Create<a class="headerlink" href="#create" title="Permanent link">&para;</a></h3>
+<h3 id="update-package">Update Package<a class="headerlink" href="#update-package" title="Permanent link">&para;</a></h3>
+<p>Runs composer update to update package.</p>
 <p><strong>Call</strong></p>
-<div class="codehilite"><pre><span></span>$route = [
-    &#39;label&#39; =&gt; &#39;Example&#39;,
-    &#39;domains&#39; =&gt; [
-        &#39;example.com&#39;,
-        &#39;www.example.com&#39;
-    ],
-    &#39;upstreams&#39; =&gt; [
-        [&#39;ip&#39; =&gt; &#39;127.0.0.1&#39;, &#39;port&#39; =&gt; &#39;80&#39;]
-    ],
-    &#39;letsencrypt&#39; =&gt; 0,
-    &#39;enabled&#39; =&gt; 1
-];
-$client-&gt;iptables-&gt;add($route);
-</pre></div>
-
-
-<p><strong>Response</strong></p>
-<div class="codehilite"><pre><span></span>
-</pre></div>
-
-
-<h3 id="update">Update<a class="headerlink" href="#update" title="Permanent link">&para;</a></h3>
-<p><strong>Call</strong></p>
-<div class="codehilite"><pre><span></span>$route = [
-    &#39;label&#39; =&gt; &#39;Example Changed&#39;,
-    &#39;domains&#39; =&gt; [
-        &#39;example.com&#39;,
-        &#39;www.example.com&#39;,
-        &#39;new.example.com&#39;,
-    ],
-    &#39;upstreams&#39; =&gt; [
-        [&#39;ip&#39; =&gt; 10.0.0.1&#39;, &#39;port&#39; =&gt; &#39;8080&#39;]
-    ],
-    &#39;letsencrypt&#39; =&gt; 0,
-    &#39;enabled&#39; =&gt; 1
-];
-// column, value, $data
-$client-&gt;iptables-&gt;update(&#39;id = ?&#39;, [1], $route);
+<div class="codehilite"><pre><span></span>$client-&gt;iptables-&gt;update_package();
 </pre></div>
 
 
@@ -712,55 +793,580 @@ $client-&gt;iptables-&gt;update(&#39;id = ?&#39;, [1], $route);
 
 
 <h3 id="fetch">Fetch<a class="headerlink" href="#fetch" title="Permanent link">&para;</a></h3>
+<p>Fetch currently configured forward or blocked rules from database.</p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>placeholder</td>
+<td>string</td>
+<td>Query placeholder</td>
+<td></td>
+</tr>
+<tr>
+<td>values</td>
+<td>array</td>
+<td>Match values</td>
+<td></td>
+</tr>
+</tbody>
+</table>
 <p><strong>Call</strong></p>
-<div class="codehilite"><pre><span></span>$client-&gt;iptables-&gt;fetch(&#39;route&#39;);
-$client-&gt;iptables-&gt;fetch(&#39;route&#39;, &#39;id = ?&#39;, [1]);
-$client-&gt;iptables-&gt;fetch(&#39;route&#39;, &#39;name = ?&#39;, [&#39;some-guidV4-value&#39;])
+<div class="codehilite"><pre><span></span>all           - $client-&gt;iptables-&gt;fetch();
+ruleById(1)   - $client-&gt;iptables-&gt;fetch(&#39;id = ?&#39;, [1]);
+ruleByName(1) - $client-&gt;iptables-&gt;fetch(&#39;name = ?&#39;, [&#39;guidV4-value&#39;])
 </pre></div>
 
 
 <p><strong>Response</strong></p>
-<div class="codehilite"><pre><span></span>
+<div class="codehilite"><pre><span></span>Array
+(
+    [0] =&gt; Array
+        (
+            [id] =&gt; 1
+            [type] =&gt; forward
+            [name] =&gt; 5b1b63cd-0106-4fde-ba3f-8b252ae400a1
+            [label] =&gt; Example
+            [ip] =&gt; 10.100.200.2
+            [port] =&gt; 2251
+            [srv_type] =&gt; SSH
+            [srv_port] =&gt; 22
+            [enabled] =&gt; 1
+            [added_date] =&gt; 2018-01-25 02:18:26
+            [has_change] =&gt; 0
+            [updated_date] =&gt; 2018-01-25 02:18:26
+            [range] =&gt; 
+            [note] =&gt; 
+            [bantime] =&gt; 
+        )
+
+)
 </pre></div>
 
 
-<h3 id="remove">Remove<a class="headerlink" href="#remove" title="Permanent link">&para;</a></h3>
+<h3 id="count">Count<a class="headerlink" href="#count" title="Permanent link">&para;</a></h3>
+<p>Fetch count of currently configured forward or blocked rules from database.</p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>placeholder</td>
+<td>string</td>
+<td>Query placeholder</td>
+<td></td>
+</tr>
+<tr>
+<td>values</td>
+<td>array</td>
+<td>Match values</td>
+<td></td>
+</tr>
+</tbody>
+</table>
 <p><strong>Call</strong></p>
-<div class="codehilite"><pre><span></span>$client-&gt;iptables-&gt;remove(&#39;name = ?&#39;, [$route[&#39;name&#39;]]);
+<div class="codehilite"><pre><span></span>all           - $client-&gt;iptables-&gt;count();
+ruleById(1)   - $client-&gt;iptables-&gt;count(&#39;id = ?&#39;, [1]);
+ruleByName(1) - $client-&gt;iptables-&gt;count(&#39;name = ?&#39;, [&#39;guidV4-value&#39;])
 </pre></div>
 
 
 <p><strong>Response</strong></p>
-<div class="codehilite"><pre><span></span>
+<div class="codehilite"><pre><span></span>1
 </pre></div>
 
 
 <h3 id="rebuild">Rebuild<a class="headerlink" href="#rebuild" title="Permanent link">&para;</a></h3>
+<p>Rebuild forward or blocked rule.</p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>placeholder</td>
+<td>string</td>
+<td>Query placeholder</td>
+<td></td>
+</tr>
+<tr>
+<td>values</td>
+<td>array</td>
+<td>Match values</td>
+<td></td>
+</tr>
+</tbody>
+</table>
 <p><strong>Call</strong></p>
-<div class="codehilite"><pre><span></span>$client-&gt;iptables-&gt;rebuild(&#39;name = ?&#39;, [$route[&#39;name&#39;]]);
+<div class="codehilite"><pre><span></span>ruleById(1)   - $client-&gt;iptables-&gt;rebuild(&#39;id = ?&#39;, [1]);
+ruleByName(1) - $client-&gt;iptables-&gt;rebuild(&#39;name = ?&#39;, [&#39;guidV4-value&#39;])
 </pre></div>
 
 
 <p><strong>Response</strong></p>
-<div class="codehilite"><pre><span></span>
+<div class="codehilite"><pre><span></span>Array
+(
+    [status] =&gt; success
+)
+</pre></div>
+
+
+<h3 id="remove">Remove<a class="headerlink" href="#remove" title="Permanent link">&para;</a></h3>
+<p>Remove forward or blocked rule.</p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>placeholder</td>
+<td>string</td>
+<td>Query placeholder</td>
+<td></td>
+</tr>
+<tr>
+<td>values</td>
+<td>array</td>
+<td>Match values</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Call</strong></p>
+<div class="codehilite"><pre><span></span>ruleById(1)   - $client-&gt;iptables-&gt;remove(&#39;id = ?&#39;, [1]);
+ruleByName(1) - $client-&gt;iptables-&gt;remove(&#39;name = ?&#39;, [&#39;guidV4-value&#39;])
+</pre></div>
+
+
+<p><strong>Response</strong></p>
+<div class="codehilite"><pre><span></span>Array
+(
+    [status] =&gt; success
+)
 </pre></div>
 
 
 <h3 id="reset">Reset<a class="headerlink" href="#reset" title="Permanent link">&para;</a></h3>
+<p>Remove all forwards and blocked rules.</p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>purge</td>
+<td>bool</td>
+<td>Also remove tasks</td>
+<td><code class="codehilite">false</code></td>
+</tr>
+</tbody>
+</table>
 <p><strong>Call</strong></p>
-<div class="codehilite"><pre><span></span>// dont remove tasks
-$client-&gt;iptables-&gt;reset();
-
-// remove tasks
-$client-&gt;iptables-&gt;reset(true);
+<div class="codehilite"><pre><span></span>$client-&gt;iptables-&gt;reset();     // remove just rules
+$client-&gt;iptables-&gt;reset(true); // remove rules and tasks (purge)
 </pre></div>
 
 
 <p><strong>Response</strong></p>
-<div class="codehilite"><pre><span></span>
+<div class="codehilite"><pre><span></span>Array
+(
+    [status] =&gt; success
+)
 </pre></div>
 
 
+<h3 id="add-block">Add Block<a class="headerlink" href="#add-block" title="Permanent link">&para;</a></h3>
+<p>Add an IP address to blocked rules.</p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>data</td>
+<td>array</td>
+<td>Rule data</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Call</strong></p>
+<div class="codehilite"><pre><span></span>$client-&gt;iptables-&gt;addBlock([
+    &#39;ip&#39;      =&gt; &#39;123.123.123.123&#39;,
+    &#39;range&#39;   =&gt; 32,
+    &#39;note&#39;    =&gt; &#39;Port scanned server&#39;,
+    &#39;enabled&#39; =&gt; 1
+]);
+</pre></div>
+
+
+<p><strong>Response</strong></p>
+<div class="codehilite"><pre><span></span>Array
+(
+    [status] =&gt; success
+    [values] =&gt; Array
+        (
+            [id] =&gt; 3
+            [type] =&gt; block
+            [name] =&gt; 7bb82b0c-617d-4343-bca5-f8055a7e3087
+            [label] =&gt; -
+            [ip] =&gt; 123.123.123.123
+            [range] =&gt; 32
+            [note] =&gt; Port scanned server
+            [added_date] =&gt; 2018-05-09 22:46:30
+            [bantime] =&gt; 0
+            [enabled] =&gt; 1
+            [has_change] =&gt; 1
+        )
+
+)
+</pre></div>
+
+
+<h3 id="update-block">Update Block<a class="headerlink" href="#update-block" title="Permanent link">&para;</a></h3>
+<p>Update a blocked IP address rule.</p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>placeholder</td>
+<td>string</td>
+<td>Query placeholder</td>
+<td></td>
+</tr>
+<tr>
+<td>values</td>
+<td>array</td>
+<td>Match values</td>
+<td></td>
+</tr>
+<tr>
+<td>data</td>
+<td>array</td>
+<td>Updated rule data</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Call</strong></p>
+<div class="codehilite"><pre><span></span>$client-&gt;iptables-&gt;updateBlock(&#39;id = ?&#39;, [3], [
+    &#39;label&#39; =&gt; &#39;&#39;,
+    &#39;enabled&#39; =&gt; 1,
+    &#39;ip&#39; =&gt; &#39;212.123.123.123&#39;,
+    &#39;range&#39; =&gt; 32,
+    &#39;note&#39; =&gt; &#39;FooBar&#39;,
+    &#39;bantime&#39; =&gt; 0
+]);
+</pre></div>
+
+
+<p><strong>Response</strong></p>
+<div class="codehilite"><pre><span></span>Array
+(
+    [status] =&gt; success
+    [values] =&gt; Array
+        (
+            [id] =&gt; 3
+            [type] =&gt; block
+            [name] =&gt; 7bb82b0c-617d-4343-bca5-f8055a7e3087
+            [label] =&gt; 
+            [ip] =&gt; 212.123.123.123
+            [port] =&gt; 
+            [srv_type] =&gt; 
+            [srv_port] =&gt; 
+            [enabled] =&gt; 1
+            [added_date] =&gt; 2018-05-09 22:46:30
+            [has_change] =&gt; 1
+            [updated_date] =&gt; 2018-05-09 22:54:15
+            [range] =&gt; 32
+            [note] =&gt; FooBar
+            [bantime] =&gt; 0
+        )
+
+)
+</pre></div>
+
+
+<h3 id="status">Status<a class="headerlink" href="#status" title="Permanent link">&para;</a></h3>
+<p>Enumarate and return status of used and available ports.</p>
+<p><strong>Call</strong></p>
+<div class="codehilite"><pre><span></span>$client-&gt;iptables-&gt;status();
+</pre></div>
+
+
+<p><strong>Response</strong></p>
+<div class="codehilite"><pre><span></span>Array
+(
+    [blocked_rules] =&gt; 1
+    [forward_rules] =&gt; 0
+    [total] =&gt; 400
+    [available] =&gt; 400
+)
+</pre></div>
+
+
+<h3 id="raw">Raw<a class="headerlink" href="#raw" title="Permanent link">&para;</a></h3>
+<p>Fetch raw iptables, equivalent to <code class="codehilite">iptables-save</code>.</p>
+<p><strong>Call</strong></p>
+<div class="codehilite"><pre><span></span>$client-&gt;iptables-&gt;raw();
+</pre></div>
+
+
+<p><strong>Response</strong></p>
+<div class="codehilite"><pre><span></span># Generated on Thu Jan 25 12:34:56 2018
+*mangle
+:PREROUTING ACCEPT [0:0]
+:INPUT ACCEPT [0:0]
+:FORWARD ACCEPT [0:0]
+:OUTPUT ACCEPT [0:0]
+:POSTROUTING ACCEPT [0:0]
+-A POSTROUTING -o lxcbr0 -p udp -m udp --dport 68 -j CHECKSUM --checksum-fill
+COMMIT
+*nat
+:PREROUTING ACCEPT [0:0]
+:INPUT ACCEPT [0:0]
+:OUTPUT ACCEPT [0:0]
+:POSTROUTING ACCEPT [0:0]
+:DOCKER - [0:0]
+-A PREROUTING -m addrtype --dst-type LOCAL -j DOCKER
+-A OUTPUT ! -d 127.0.0.0/8 -m addrtype --dst-type LOCAL -j DOCKER
+-A POSTROUTING -s 172.17.0.0/16 ! -o docker0 -j MASQUERADE
+-A PREROUTING -p tcp -m tcp --dport 2251 -j DNAT --to-destination 10.158.250.6:22
+-A PREROUTING -p udp -m udp --dport 2251 -j DNAT --to-destination 10.158.250.6:22
+-A POSTROUTING -s 10.158.250.0/8 ! -d 10.158.250.0/8 -j MASQUERADE
+-A DOCKER -i lxcbr0 -j RETURN
+COMMIT
+*filter
+:INPUT ACCEPT [0:0]
+:FORWARD ACCEPT [0:0]
+:OUTPUT ACCEPT [0:0]
+:fail2ban-ssh - [0:0]
+:DOCKER - [0:0]
+:DOCKER-ISOLATION - [0:0]
+:DOCKER-USER - [0:0]
+-A INPUT -p tcp -m multiport --dports 2020 -j fail2ban-ssh
+-A INPUT -p tcp -m multiport --dports 22 -j fail2ban-ssh
+-A INPUT -p tcp -m multiport --dports 2200:2299 -j fail2ban-ssh
+-A INPUT -i lxcbr0 -p tcp -m tcp --dport 53 -j ACCEPT
+-A INPUT -i lxcbr0 -p udp -m udp --dport 53 -j ACCEPT
+-A INPUT -i lxcbr0 -p tcp -m tcp --dport 67 -j ACCEPT
+-A INPUT -i lxcbr0 -p udp -m udp --dport 67 -j ACCEPT
+-A INPUT -i lo -j ACCEPT
+-A INPUT -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
+-A INPUT -m conntrack --ctstate INVALID -j DROP
+-A INPUT -p tcp -m tcp --dport 80 -m conntrack --ctstate NEW,ESTABLISHED -j ACCEPT
+-A INPUT -p tcp -m tcp --dport 443 -m conntrack --ctstate NEW,ESTABLISHED -j ACCEPT
+-A INPUT -p tcp -m tcp --dport 8443 -m conntrack --ctstate NEW,ESTABLISHED -j ACCEPT
+-A FORWARD -j DOCKER-USER
+-A FORWARD -j DOCKER-ISOLATION
+-A FORWARD -o docker0 -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
+-A FORWARD -o docker0 -j DOCKER
+-A FORWARD -i docker0 ! -o docker0 -j ACCEPT
+-A FORWARD -i docker0 -o docker0 -j ACCEPT
+-A FORWARD -o lxcbr0 -j ACCEPT
+-A FORWARD -i lxcbr0 -j ACCEPT
+-A OUTPUT -o lo -j ACCEPT
+-A OUTPUT -p tcp -m tcp --sport 80 -m conntrack --ctstate ESTABLISHED -j ACCEPT
+-A OUTPUT -p tcp -m tcp --sport 443 -m conntrack --ctstate ESTABLISHED -j ACCEPT
+-A OUTPUT -p tcp -m tcp --sport 8443 -m conntrack --ctstate ESTABLISHED -j ACCEPT
+-A OUTPUT -o lxcbr0 -p tcp -m tcp --sport 53 -j ACCEPT
+-A OUTPUT -o lxcbr0 -p udp -m udp --sport 53 -j ACCEPT
+-A OUTPUT -o lxcbr0 -p udp -m udp --sport 67 -j ACCEPT
+-A DOCKER-ISOLATION -j RETURN
+-A DOCKER-USER -j RETURN
+-A INPUT -s 212.123.123.123/32 -j REJECT
+-A fail2ban-ssh -j RETURN
+COMMIT
+# Completed on Thu Jan 25 12:34:56 2018
+</pre></div>
+
+
+<h3 id="available-ports">Available Ports<a class="headerlink" href="#available-ports" title="Permanent link">&para;</a></h3>
+<p>Fetch available ports within a range type.</p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>type</td>
+<td>string</td>
+<td>Port range type</td>
+<td><code class="codehilite">all</code></td>
+</tr>
+</tbody>
+</table>
+<p>The following port ranges (400 ports) are externally available for forwarding.</p>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Range</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>all</td>
+<td>2200 - 8099</td>
+<td>Returns all available ports</td>
+</tr>
+<tr>
+<td>ssh</td>
+<td>2200 - 2299</td>
+<td>Returns available ssh ports</td>
+</tr>
+<tr>
+<td>http</td>
+<td>8000 - 8099</td>
+<td>Returns available http ports</td>
+</tr>
+<tr>
+<td>mysql</td>
+<td>3300 - 3399</td>
+<td>Returns available mysql ports</td>
+</tr>
+<tr>
+<td>shellinabox</td>
+<td>4200 - 4299</td>
+<td>Returns available shellinabox ports</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Call</strong></p>
+<div class="codehilite"><pre><span></span>$client-&gt;iptables-&gt;availablePorts(&#39;http&#39;);
+</pre></div>
+
+
+<p><strong>Response</strong></p>
+<div class="codehilite"><pre><span></span>Array
+(
+    [0] =&gt; 8000
+    [1] =&gt; 8001
+    [2] =&gt; 8002
+    [3] =&gt; 8003
+    [4] =&gt; 8004
+    [5] =&gt; 8005
+    [6] =&gt; 8006
+    [7] =&gt; 8007
+    [8] =&gt; 8008
+    [9] =&gt; 8009
+    [10] =&gt; 8010
+    ... snip
+    [99] =&gt; 8099
+)
+</pre></div>
+
+
+<h3 id="check-port-in-use">Check Port In Use<a class="headerlink" href="#check-port-in-use" title="Permanent link">&para;</a></h3>
+<p>Check if a port is already in use by a rule.</p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>port</td>
+<td>int</td>
+<td>Port to check</td>
+<td><code class="codehilite">0</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Call</strong></p>
+<div class="codehilite"><pre><span></span>$client-&gt;iptables-&gt;checkPortInUse(8000);
+</pre></div>
+
+
+<p><strong>Response</strong></p>
+<div class="codehilite"><pre><span></span>boolean
+</pre></div>
+
+
+<h3 id="check-allowed-port">Check Allowed Port<a class="headerlink" href="#check-allowed-port" title="Permanent link">&para;</a></h3>
+<p>Check if a port is in allowed ranges.</p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>port</td>
+<td>int</td>
+<td>Port to check</td>
+<td><code class="codehilite">0</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Call</strong></p>
+<div class="codehilite"><pre><span></span>$client-&gt;iptables-&gt;checkAllowedPort(12345);
+</pre></div>
+
+
+<p><strong>Response</strong></p>
+<div class="codehilite"><pre><span></span>boolean - false in the above case
+</pre></div>
+
+
+<h3 id="add-forward">Add Forward<a class="headerlink" href="#add-forward" title="Permanent link">&para;</a></h3>
+<p>todo</p>
+<h3 id="update-forward">Update Forward<a class="headerlink" href="#update-forward" title="Permanent link">&para;</a></h3>
+<p>todo</p>
 <h2 id="testing">Testing<a class="headerlink" href="#testing" title="Permanent link">&para;</a></h2>
 <p>There are no tests setup for this component.</p>
 <h2 id="contributing">Contributing<a class="headerlink" href="#contributing" title="Permanent link">&para;</a></h2>
