@@ -49,7 +49,7 @@ namespace Plinker\Iptables {
      *
      * @package Plinker\Iptables
      */
-    class Manager
+    class Iptables
     {
         public $config = array();
 

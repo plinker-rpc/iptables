@@ -1,37 +1,51 @@
-PlinkerRPC PHP client/server makes it really easy to link and execute PHP 
-component classes on remote systems, while maintaining the feel of a local 
-method call.
+# Iptables
 
-WIP: control iptables though rpc
+Control iptables for pre routing rules (port forwarding). Specifically suited for forwarding ports to internal LXC containers.
 
-## ::Installing::
+## Install
 
-Bring in the project with composer:
+Require this package with composer using the following command:
 
-    {
-    	"require": {
-    		"plinker/iptables": ">=v0.1"
-    	}
-    }
-    
-    
-Then navigate to `./vendor/plinker/iptables/scripts` and run `bash install.sh`
+``` bash
+$ composer require plinker/iptables
+```
+
+Then navigate to `./vendor/plinker/iptables/scripts` and run `bash install.sh`.
 
 
-::Client::
----------
+## Client
+
+Creating a client instance is done as follows:
+
+
+    <?php
+    require 'vendor/autoload.php';
 
     /**
-     * Plinker Config
+     * Initialize plinker client.
+     *
+     * @param string $server - URL to server listener.
+     * @param string $config - server secret, and/or a additional component data
      */
-    $config = [
-        // plinker connection
-        'plinker' => [
-            'endpoint' => 'http://127.0.0.1:88',
-            'public_key'  => 'makeSomethingUp',
-            'private_key' => 'againMakeSomethingUp'
-        ],
+    $client = new \Plinker\Core\Client(
+        'http://example.com/server.php',
+        [
+            'secret' => 'a secret password',
+            // database connection
+            'database' => [
+                'dsn'      => 'sqlite:./.plinker/database.db',
+                'host'     => '',
+                'name'     => '',
+                'username' => '',
+                'password' => '',
+                'freeze'   => false,
+                'debug'    => false,
+            ]
+        ]
+    );
     
+    // or using global function
+    $client = plinker_client('http://example.com/server.php', 'a secret password', [
         // database connection
         'database' => [
             'dsn'      => 'sqlite:./.plinker/database.db',
@@ -42,34 +56,25 @@ Then navigate to `./vendor/plinker/iptables/scripts` and run `bash install.sh`
             'freeze'   => false,
             'debug'    => false,
         ]
-    ];
+    ]);
     
-    // init plinker endpoint client
-    $iptables = new \Plinker\Core\Client(
-        // where is the plinker server
-        $config['plinker']['endpoint'],
-    
-        // component namespace to interface to
-        'Iptables\Manager',
-    
-        // keys
-        $config['plinker']['public_key'],
-        $config['plinker']['private_key'],
-    
-        // construct values which you pass to the component, which the component
-        //  will use, for RedbeanPHP component you would send the database connection
-        //  dont worry its AES encrypted. see: encryption-proof.txt
-        $config
-    );
-    
-::Calls::
----------
 
-**Setup**
+## Methods
+
+Once setup, you call the class though its namespace to its method.
+
+
+### Setup
 
 Applies build tasks to plinker/tasks queue.
 
-    $iptables->setup([
+| Parameter   | Type           | Description   | Default        |
+| ----------  | -------------  | ------------- |  ------------- | 
+| options     | array          | Task options |  |
+
+**Call**
+
+    $client->iptables->setup([
         'build_sleep' => 5,
         // LXD settings *required
         'lxd' => [
@@ -83,7 +88,13 @@ Applies build tasks to plinker/tasks queue.
         ]
     ]);
 
-**Create**
+**Response**
+``` text
+```
+
+### Create
+
+**Call**
 
     $route = [
         'label' => 'Example',
@@ -97,9 +108,15 @@ Applies build tasks to plinker/tasks queue.
         'letsencrypt' => 0,
         'enabled' => 1
     ];
-    $iptables->add($route);
+    $client->iptables->add($route);
 
-**Update**
+**Response**
+``` text
+```
+
+### Update
+
+**Call**
 
     $route = [
         'label' => 'Example Changed',
@@ -115,30 +132,87 @@ Applies build tasks to plinker/tasks queue.
         'enabled' => 1
     ];
     // column, value, $data
-    $iptables->update('id = ?', [1], $route);
-
-**Fetch**
+    $client->iptables->update('id = ?', [1], $route);
     
-    $iptables->fetch('route');
-    $iptables->fetch('route', 'id = ?', [1]);
-    $iptables->fetch('route', 'name = ?', ['some-guidV4-value'])
+**Response**
+``` text
+```
 
-**Remove**
+### Fetch
+    
+**Call**
 
-    $iptables->remove('name = ?', [$route['name']]);
+    $client->iptables->fetch('route');
+    $client->iptables->fetch('route', 'id = ?', [1]);
+    $client->iptables->fetch('route', 'name = ?', ['some-guidV4-value'])
 
-**Rebuild**
+**Response**
+``` text
+```
 
-    $iptables->rebuild('name = ?', [$route['name']]);
+### Remove
 
-**Reset**
+**Call**
+
+    $client->iptables->remove('name = ?', [$route['name']]);
+    
+**Response**
+``` text
+```
+
+### Rebuild
+
+**Call**
+
+    $client->iptables->rebuild('name = ?', [$route['name']]);
+    
+**Response**
+``` text
+```
+
+### Reset
+
+**Call**
 
     // dont remove tasks
-    $iptables->reset();
+    $client->iptables->reset();
     
     // remove tasks
-    $iptables->reset(true);
-    
+    $client->iptables->reset(true);
 
-See the [organisations page](https://github.com/plinker-rpc) for additional 
-components and examples.
+**Response**
+``` text
+```
+
+## Testing
+
+There are no tests setup for this component.
+
+## Contributing
+
+Please see [CONTRIBUTING](https://github.com/plinker-rpc/files/blob/master/CONTRIBUTING) for details.
+
+## Security
+
+If you discover any security related issues, please contact me via [https://cherone.co.uk](https://cherone.co.uk) instead of using the issue tracker.
+
+## Credits
+
+- [Lawrence Cherone](https://github.com/lcherone)
+- [All Contributors](https://github.com/plinker-rpc/files/graphs/contributors)
+
+
+## Development Encouragement
+
+If you use this project and make money from it or want to show your appreciation,
+please feel free to make a donation [https://www.paypal.me/lcherone](https://www.paypal.me/lcherone), thanks.
+
+## Sponsors
+
+Get your company or name listed throughout the documentation and on each github repository, contact me at [https://cherone.co.uk](https://cherone.co.uk) for further details.
+
+## License
+
+The MIT License (MIT). Please see [License File](https://github.com/plinker-rpc/files/blob/master/LICENSE) for more information.
+
+See the [organisations page](https://github.com/plinker-rpc) for additional components.
