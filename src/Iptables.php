@@ -132,8 +132,8 @@ namespace Plinker\Iptables {
                 $this->tasks->run(
                     [
                         'iptables.build',
-                        $params[0],
-                        ($params[0]['build_sleep'] ? (int) $params[0]['build_sleep'] : 5)
+                        $params,
+                        ($params['build_sleep'] ? (int) $params['build_sleep'] : 5)
                     ]
                  );
 
@@ -190,20 +190,22 @@ namespace Plinker\Iptables {
          * Fetch iptable rules
          *
          * @usage:
-         *  all           - $iptables->fetch('iptable');
-         *  ruleById(1)   - $iptables->fetch('iptable', 'id = ? ', [1]);
-         *  ruleByName(1) - $iptables->fetch('iptable', 'name = ? ', ['guidV4-value'])
+         *  all           - $iptables->fetch();
+         *  ruleById(1)   - $iptables->fetch('id = ? ', [1]);
+         *  ruleByName(1) - $iptables->fetch('name = ? ', ['guidV4-value'])
          *
          * @return array
          */
-        public function fetch(array $params = array())
+        public function fetch($placeholder = null, array $values = [])
         {
-            if (!empty($params[0]) && !empty($params[1]) && !empty($params[2])) {
-                $result = $this->model->findAll([$params[0], $params[1], $params[2]]);
-            } elseif (!empty($params[0]) && !empty($params[1])) {
-                $result = $this->model->findAll([$params[0], $params[1]]);
+            $table = 'iptable';
+
+            if (!empty($placeholder) && !empty($values)) {
+                $result = $this->model->findAll([$table, $placeholder, $values]);
+            } elseif (!empty($placeholder)) {
+                $result = $this->model->findAll([$table, $placeholder]);
             } else {
-                $result = $this->model->findAll([$params[0]]);
+                $result = $this->model->findAll([$table]);
             }
 
             $return = [];
@@ -219,22 +221,24 @@ namespace Plinker\Iptables {
          *
          * @example
          * <code>
-            $iptables->count('iptable');
-            $iptables->count('iptable', 'id = ? ', [1]);
-            $iptables->count('iptable', 'name = ? ', ['guidV4-value']);
+            $iptables->count();
+            $iptables->count('id = ? ', [1]);
+            $iptables->count('name = ? ', ['guidV4-value']);
            </code>
          *
          * @param array $params
          * @return array
          */
-        public function count(array $params = array())
+        public function count($placeholder = null, array $values = [])
         {
-            if (!empty($params[0]) && !empty($params[1]) && !empty($params[2])) {
-                $result = $this->model->count([$params[0], $params[1], $params[2]]);
-            } elseif (!empty($params[0]) && !empty($params[1])) {
-                $result = $this->model->count([$params[0], $params[1]]);
+            $table = 'iptable';
+
+            if (!empty($placeholder) && !empty($values)) {
+                $result = $this->model->count([$table, $placeholder, $values]);
+            } elseif (!empty($placeholder)) {
+                $result = $this->model->count([$table, $placeholder]);
             } else {
-                $result = $this->model->count([$params[0]]);
+                $result = $this->model->count([$table]);
             }
 
             return (int) $result;
@@ -248,23 +252,23 @@ namespace Plinker\Iptables {
          </code>
          *
          */
-        public function rebuild(array $params = array())
+        public function rebuild($placeholder = null, array $values = [])
         {
-            if (!is_string($params[0])) {
+            if (!is_string($placeholder)) {
                 return [
                     'status' => 'error',
                     'errors' => ['global' => 'First param must be a string']
                 ];
             }
 
-            if (!is_array($params[1])) {
+            if (!is_array($values)) {
                 return [
                     'status' => 'error',
                     'errors' => ['global' => 'Second param must be an array']
                 ];
             }
 
-            $iptable = $this->model->findOne(['iptable', $params[0], $params[1]]);
+            $iptable = $this->model->findOne(['iptable', $placeholder, $values]);
 
             if (empty($iptable)) {
                 return [
@@ -289,23 +293,23 @@ namespace Plinker\Iptables {
             $iptables->remove('name = ?', [$row['name']]);
          </code>
          */
-        public function remove(array $params = array())
+        public function remove($placeholder = null, array $values = [])
         {
-            if (!is_string($params[0])) {
+            if (!is_string($placeholder)) {
                 return [
                     'status' => 'error',
-                    'errors' => ['params' => 'First param must be a string']
+                    'errors' => ['global' => 'First param must be a string']
                 ];
             }
 
-            if (!is_array($params[1])) {
+            if (!is_array($values)) {
                 return [
                     'status' => 'error',
-                    'errors' => ['params' => 'Second param must be an array']
+                    'errors' => ['global' => 'Second param must be an array']
                 ];
             }
 
-            $iptable = $this->model->findOne(['iptable', $params[0], $params[1]]);
+            $iptable = $this->model->findOne(['iptable', $placeholder, $values]);
 
             if (empty($iptable)) {
                 return [
@@ -328,18 +332,18 @@ namespace Plinker\Iptables {
          * <code>
             <?php
             $iptables->reset();     // deletes rows
-            $iptables->reset(true); // deletes rows and tasks
+            $iptables->reset(true); // deletes rows and tasks (purge)
            </code>
          *
          *
-         * @param bool $param[0] - remove tasks
+         * @param bool $purge - remove tasks
          * @return array
          */
-        public function reset(array $params = array())
+        public function reset($purge = false)
         {
             $this->model->exec(['DELETE FROM iptable']);
 
-            if (!empty($params[0])) {
+            if (!empty($purge)) {
                 $this->model->exec(['DELETE FROM tasks WHERE name = "iptables.setup"']);
                 $this->model->exec(['DELETE FROM tasks WHERE name = "iptables.build"']);
                 $this->model->exec(['DELETE FROM tasks WHERE name = "iptables.composer_update"']);

@@ -70,119 +70,170 @@ Applies build tasks to plinker/tasks queue.
 
 | Parameter   | Type           | Description   | Default        |
 | ----------  | -------------  | ------------- |  ------------- | 
-| options     | array          | Task options |  |
+| options     | array          | Build options |                |
 
 **Call**
 
     $client->iptables->setup([
         'build_sleep' => 5,
-        // LXD settings *required
-        'lxd' => [
-            'bridge' => 'lxdbr0',
-            'ip' => '10.158.250.0/24'
-        ],
-        // Docker settings *optional
-        'docker' => [
-            'bridge' => 'docker0',
-            'ip' => '172.17.0.0/16'
-        ]
+        'reconcile_sleep' => 5,
     ]);
 
 **Response**
 ``` text
 ```
 
-### Create
+### Update Package
+
+Runs composer update to update package.
 
 **Call**
 
-    $route = [
-        'label' => 'Example',
-        'domains' => [
-            'example.com',
-            'www.example.com'
-        ],
-        'upstreams' => [
-            ['ip' => '127.0.0.1', 'port' => '80']
-        ],
-        'letsencrypt' => 0,
-        'enabled' => 1
-    ];
-    $client->iptables->add($route);
+    $client->iptables->update_package();
 
-**Response**
-``` text
-```
-
-### Update
-
-**Call**
-
-    $route = [
-        'label' => 'Example Changed',
-        'domains' => [
-            'example.com',
-            'www.example.com',
-            'new.example.com',
-        ],
-        'upstreams' => [
-            ['ip' => 10.0.0.1', 'port' => '8080']
-        ],
-        'letsencrypt' => 0,
-        'enabled' => 1
-    ];
-    // column, value, $data
-    $client->iptables->update('id = ?', [1], $route);
-    
 **Response**
 ``` text
 ```
 
 ### Fetch
-    
+
+Fetch currently configured forward or blocked rules from database.
+
+| Parameter   | Type           | Description   | Default        |
+| ----------  | -------------  | ------------- |  ------------- | 
+| placeholder | string         | Query placeholder | |
+| values      | array          | Match values  |              |
+
 **Call**
 
-    $client->iptables->fetch('route');
-    $client->iptables->fetch('route', 'id = ?', [1]);
-    $client->iptables->fetch('route', 'name = ?', ['some-guidV4-value'])
-
+    all           - $client->iptables->fetch();
+    ruleById(1)   - $client->iptables->fetch('id = ?', [1]);
+    ruleByName(1) - $client->iptables->fetch('name = ?', ['guidV4-value'])
+    
 **Response**
 ``` text
+Array
+(
+    [0] => Array
+        (
+            [id] => 1
+            [type] => forward
+            [name] => 5b1b63cd-0106-4fde-ba3f-8b252ae400a1
+            [label] => Example
+            [ip] => 10.100.200.2
+            [port] => 2251
+            [srv_type] => SSH
+            [srv_port] => 22
+            [enabled] => 1
+            [added_date] => 2018-01-25 02:18:26
+            [has_change] => 0
+            [updated_date] => 2018-01-25 02:18:26
+            [range] => 
+            [note] => 
+            [bantime] => 
+        )
+
+)
 ```
 
-### Remove
+
+### Count
+
+Fetch count of currently configured forward or blocked rules from database.
+
+| Parameter   | Type           | Description   | Default        |
+| ----------  | -------------  | ------------- |  ------------- | 
+| placeholder | string         | Query placeholder | |
+| values      | array          | Match values  |              |
 
 **Call**
 
-    $client->iptables->remove('name = ?', [$route['name']]);
+    all           - $client->iptables->count();
+    ruleById(1)   - $client->iptables->count('id = ?', [1]);
+    ruleByName(1) - $client->iptables->count('name = ?', ['guidV4-value'])
     
 **Response**
 ``` text
+1
 ```
 
 ### Rebuild
 
+Rebuild forward or blocked rule.
+
+| Parameter   | Type           | Description   | Default        |
+| ----------  | -------------  | ------------- |  ------------- | 
+| placeholder | string         | Query placeholder | |
+| values      | array          | Match values  |              |
+
 **Call**
 
-    $client->iptables->rebuild('name = ?', [$route['name']]);
+    ruleById(1)   - $client->iptables->rebuild('id = ?', [1]);
+    ruleByName(1) - $client->iptables->rebuild('name = ?', ['guidV4-value'])
     
 **Response**
 ``` text
+Array
+(
+    [status] => success
+)
+```
+
+### Remove
+
+Remove forward or blocked rule.
+
+| Parameter   | Type           | Description   | Default        |
+| ----------  | -------------  | ------------- |  ------------- | 
+| placeholder | string         | Query placeholder | |
+| values      | array          | Match values  |              |
+
+**Call**
+
+    ruleById(1)   - $client->iptables->remove('id = ?', [1]);
+    ruleByName(1) - $client->iptables->remove('name = ?', ['guidV4-value'])
+    
+**Response**
+``` text
+Array
+(
+    [status] => success
+)
 ```
 
 ### Reset
 
+Remove all forwards and blocked rules.
+
+| Parameter   | Type           | Description   | Default        |
+| ----------  | -------------  | ------------- |  ------------- | 
+| purge       | bool           | Also remove tasks | `false`    |
+
 **Call**
 
-    // dont remove tasks
-    $client->iptables->reset();
-    
-    // remove tasks
-    $client->iptables->reset(true);
-
+    $client->iptables->reset();     // remove just rules
+    $client->iptables->reset(true); // remove rules and tasks (purge)
+  
 **Response**
 ``` text
+Array
+(
+    [status] => success
+)
 ```
+
+@todo
+
+### addBlock
+### updateBlock
+### status
+### raw
+### availablePorts
+### checkPortInUse
+### checkAllowedPort
+### addForward
+### updateForward
+
 
 ## Testing
 
