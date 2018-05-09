@@ -399,10 +399,8 @@ namespace Plinker\Iptables {
          </code>
          *
          */
-        public function addBlock(array $params = array())
+        public function addBlock(array $data = array())
         {
-            $data = $params[0];
-
             $errors = [];
 
             // validate ip
@@ -481,26 +479,20 @@ namespace Plinker\Iptables {
          *
          <code>
             $iptables->updateBlock('id=?', [1], [
-                'label' => ''
-                'enabled' => 1
-                'has_change' => 1
-                'ip' => 212.123.123.123
-                'range' => 32
-                'note' => FooBar
-                'bandate' =>
+                'label' => '',
+                'enabled' => 1,
+                'ip' => '212.123.123.123',
+                'range' => 32,
+                'note' => 'FooBar',
                 'bantime' => 0
             ])
          </code>
          */
-        public function updateBlock(array $params = array())
+        public function updateBlock($placeholder = '', array $values = [], array $data = [])
         {
-            $query = $params[0];
-            $id    = (array) $params[1];
-            $data  = (array) $params[2];
-
             $errors = [];
 
-            $iptable = $this->model->findOne(['iptable', $query, $id]);
+            $iptable = $this->model->findOne(['iptable', $placeholder, $values]);
 
             // check found
             if (empty($iptable->name)) {
@@ -587,14 +579,13 @@ namespace Plinker\Iptables {
             $iptables-status()
          </code>
          *
-         * @param array $params
          * @return array
          */
-        public function status(array $params = array())
+        public function status()
         {
             return [
-                'blocked_rules' => $this->count(['iptable', 'type=?', ['block']]),
-                'forward_rules' => $this->count(['iptable', 'type=?', ['forward']]),
+                'blocked_rules' => $this->count('type = ?', ['block']),
+                'forward_rules' => $this->count('type = ?', ['forward']),
                 'total' => (int) count(array_merge(
                     range(2200, 2299),
                     range(3300, 3399),
@@ -620,14 +611,14 @@ namespace Plinker\Iptables {
         }
 
         /**
-         * Enumarate existing ports used.
+         * Fetch available ports within a range type.
          *
-         * @param array $params
+         * @param string $type
          * @return array
          */
-        public function availablePorts(array $params = array())
+        public function availablePorts($type = 'all')
         {
-            switch ((string) strtolower($params[0])) {
+            switch ((string) strtolower($type)) {
                 case "ssh": {
                     $range = range(2200, 2299);
                     $port  = 22;
@@ -685,9 +676,9 @@ namespace Plinker\Iptables {
          * @param array $params
          * @return bool
          */
-        public function checkPortInUse(array $params = array())
+        public function checkPortInUse(int $port = 0)
         {
-            return ($this->model->count(['iptable', 'port = ?', [$params[0]]]) > 0);
+            return ($this->model->count(['iptable', 'port = ?', [$port]]) > 0);
         }
 
         /**
@@ -696,10 +687,10 @@ namespace Plinker\Iptables {
          * @param array $params
          * @return bool
          */
-        public function checkAllowedPort(array $params = array())
+        public function checkAllowedPort(int $port = 0)
         {
             return (
-                in_array($params[0], array_merge(
+                in_array($port, array_merge(
                     range(2200, 2299),
                     range(3300, 3399),
                     range(4300, 4399),
