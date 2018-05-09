@@ -2,23 +2,98 @@
     "docs": [
         {
             "location": "/", 
-            "text": "PlinkerRPC PHP client/server makes it really easy to link and execute PHP \ncomponent classes on remote systems, while maintaining the feel of a local \nmethod call.\n\n\nWIP: control iptables though rpc\n\n\n::Installing::\n\n\nBring in the project with composer:\n\n\n{\n    \nrequire\n: {\n        \nplinker/iptables\n: \n=v0.1\n\n    }\n}\n\n\n\n\n\nThen navigate to \n./vendor/plinker/iptables/scripts\n and run \nbash install.sh\n\n\n::Client::\n\n\n/**\n\n\n * Plinker Config\n\n\n */\n\n\n$\nconfig\n \n=\n \n[\n\n\n    \n//\n \nplinker\n \nconnection\n\n\n    \nplinker\n \n=\n \n[\n\n\n        \nendpoint\n \n=\n \nhttp://127.0.0.1:88\n,\n\n\n        \npublic_key\n  \n=\n \nmakeSomethingUp\n,\n\n\n        \nprivate_key\n \n=\n \nagainMakeSomethingUp\n\n\n    \n]\n,\n\n\n\n    \n//\n \ndatabase\n \nconnection\n\n\n    \ndatabase\n \n=\n \n[\n\n\n        \ndsn\n      \n=\n \nsqlite:./.plinker/database.db\n,\n\n\n        \nhost\n     \n=\n \n,\n\n\n        \nname\n     \n=\n \n,\n\n\n        \nusername\n \n=\n \n,\n\n\n        \npassword\n \n=\n \n,\n\n\n        \nfreeze\n   \n=\n \nfalse\n,\n\n\n        \ndebug\n    \n=\n \nfalse\n,\n\n\n    \n]\n\n\n];\n\n\n\n//\n \ninit\n \nplinker\n \nendpoint\n \nclient\n\n\n$\niptables\n \n=\n \nnew\n \n\\\nPlinker\n\\\nCore\n\\\nClient\n(\n\n\n    \n//\n \nwhere\n \nis\n \nthe\n \nplinker\n \nserver\n\n\n    \n$\nconfig\n[\nplinker\n][\nendpoint\n]\n,\n\n\n\n    \n//\n \ncomponent\n \nnamespace\n \nto\n \ninterface\n \nto\n\n\n    \nIptables\\Manager\n,\n\n\n\n    \n//\n \nkeys\n\n\n    \n$\nconfig\n[\nplinker\n][\npublic_key\n]\n,\n\n\n    \n$\nconfig\n[\nplinker\n][\nprivate_key\n]\n,\n\n\n\n    \n//\n \nconstruct\n \nvalues\n \nwhich\n \nyou\n \npass\n \nto\n \nthe\n \ncomponent\n,\n \nwhich\n \nthe\n \ncomponent\n\n\n    \n//\n  \nwill\n \nuse\n,\n \nfor\n \nRedbeanPHP\n \ncomponent\n \nyou\n \nwould\n \nsend\n \nthe\n \ndatabase\n \nconnection\n\n\n    \n//\n  \ndont\n \nworry\n \nits\n \nAES\n \nencrypted\n.\n \nsee\n:\n \nencryption\n-\nproof\n.\ntxt\n\n\n    \n$\nconfig\n\n\n)\n;\n\n\n\n\n\n\n::Calls::\n\n\nSetup\n\n\nApplies build tasks to plinker/tasks queue.\n\n\n$iptables-\nsetup([\n    \nbuild_sleep\n =\n 5,\n    // LXD settings *required\n    \nlxd\n =\n [\n        \nbridge\n =\n \nlxdbr0\n,\n        \nip\n =\n \n10.158.250.0/24\n\n    ],\n    // Docker settings *optional\n    \ndocker\n =\n [\n        \nbridge\n =\n \ndocker0\n,\n        \nip\n =\n \n172.17.0.0/16\n\n    ]\n]);\n\n\n\n\n\nCreate\n\n\n$route = [\n    \nlabel\n =\n \nExample\n,\n    \ndomains\n =\n [\n        \nexample.com\n,\n        \nwww.example.com\n\n    ],\n    \nupstreams\n =\n [\n        [\nip\n =\n \n127.0.0.1\n, \nport\n =\n \n80\n]\n    ],\n    \nletsencrypt\n =\n 0,\n    \nenabled\n =\n 1\n];\n$iptables-\nadd($route);\n\n\n\n\n\nUpdate\n\n\n$route = [\n    \nlabel\n =\n \nExample Changed\n,\n    \ndomains\n =\n [\n        \nexample.com\n,\n        \nwww.example.com\n,\n        \nnew.example.com\n,\n    ],\n    \nupstreams\n =\n [\n        [\nip\n =\n 10.0.0.1\n, \nport\n =\n \n8080\n]\n    ],\n    \nletsencrypt\n =\n 0,\n    \nenabled\n =\n 1\n];\n// column, value, $data\n$iptables-\nupdate(\nid = ?\n, [1], $route);\n\n\n\n\n\nFetch\n\n\n$iptables-\nfetch(\nroute\n);\n$iptables-\nfetch(\nroute\n, \nid = ?\n, [1]);\n$iptables-\nfetch(\nroute\n, \nname = ?\n, [\nsome-guidV4-value\n])\n\n\n\n\n\nRemove\n\n\n$iptables-\nremove(\nname = ?\n, [$route[\nname\n]]);\n\n\n\n\n\nRebuild\n\n\n$iptables-\nrebuild(\nname = ?\n, [$route[\nname\n]]);\n\n\n\n\n\nReset\n\n\n// dont remove tasks\n$iptables-\nreset();\n\n// remove tasks\n$iptables-\nreset(true);\n\n\n\n\n\nSee the \norganisations page\n for additional \ncomponents and examples.", 
-            "title": "Home"
+            "text": "Iptables\n\n\nControl iptables for pre routing rules (port forwarding). Specifically suited for forwarding ports to internal LXC containers.\n\n\nInstall\n\n\nRequire this package with composer using the following command:\n\n\n$ composer require plinker/iptables\n\n\n\n\n\nThen navigate to \n./vendor/plinker/iptables/scripts\n and run \nbash install.sh\n.\n\n\nClient\n\n\nCreating a client instance is done as follows:\n\n\n?php\n\n\nrequire\n \nvendor/autoload.php\n;\n\n\n\n/**\n\n\n * Initialize plinker client.\n\n\n *\n\n\n * @param string $server - URL to server listener.\n\n\n * @param string $config - server secret, and/or a additional component data\n\n\n */\n\n\n$client\n \n=\n \nnew\n \n\\Plinker\\Core\\Client\n(\n\n    \nhttp://example.com/server.php\n,\n\n    \n[\n\n        \nsecret\n \n=\n \na secret password\n,\n\n        \n// database connection\n\n        \ndatabase\n \n=\n \n[\n\n            \ndsn\n      \n=\n \nsqlite:./.plinker/database.db\n,\n\n            \nhost\n     \n=\n \n,\n\n            \nname\n     \n=\n \n,\n\n            \nusername\n \n=\n \n,\n\n            \npassword\n \n=\n \n,\n\n            \nfreeze\n   \n=\n \nfalse\n,\n\n            \ndebug\n    \n=\n \nfalse\n,\n\n        \n]\n\n    \n]\n\n\n);\n\n\n\n// or using global function\n\n\n$client\n \n=\n \nplinker_client\n(\nhttp://example.com/server.php\n,\n \na secret password\n,\n \n[\n\n    \n// database connection\n\n    \ndatabase\n \n=\n \n[\n\n        \ndsn\n      \n=\n \nsqlite:./.plinker/database.db\n,\n\n        \nhost\n     \n=\n \n,\n\n        \nname\n     \n=\n \n,\n\n        \nusername\n \n=\n \n,\n\n        \npassword\n \n=\n \n,\n\n        \nfreeze\n   \n=\n \nfalse\n,\n\n        \ndebug\n    \n=\n \nfalse\n,\n\n    \n]\n\n\n]);\n\n\n\n\n\n\nMethods\n\n\nOnce setup, you call the class though its namespace to its method.\n\n\nSetup\n\n\nApplies build tasks to plinker/tasks queue.\n\n\n\n\n\n\n\n\nParameter\n\n\nType\n\n\nDescription\n\n\nDefault\n\n\n\n\n\n\n\n\n\n\noptions\n\n\narray\n\n\nTask options\n\n\n\n\n\n\n\n\n\n\nCall\n\n\n$client-\niptables-\nsetup([\n    \nbuild_sleep\n =\n 5,\n    // LXD settings *required\n    \nlxd\n =\n [\n        \nbridge\n =\n \nlxdbr0\n,\n        \nip\n =\n \n10.158.250.0/24\n\n    ],\n    // Docker settings *optional\n    \ndocker\n =\n [\n        \nbridge\n =\n \ndocker0\n,\n        \nip\n =\n \n172.17.0.0/16\n\n    ]\n]);\n\n\n\n\n\nResponse\n\n\n\n\n\n\n\n\nCreate\n\n\nCall\n\n\n$route = [\n    \nlabel\n =\n \nExample\n,\n    \ndomains\n =\n [\n        \nexample.com\n,\n        \nwww.example.com\n\n    ],\n    \nupstreams\n =\n [\n        [\nip\n =\n \n127.0.0.1\n, \nport\n =\n \n80\n]\n    ],\n    \nletsencrypt\n =\n 0,\n    \nenabled\n =\n 1\n];\n$client-\niptables-\nadd($route);\n\n\n\n\n\nResponse\n\n\n\n\n\n\n\n\nUpdate\n\n\nCall\n\n\n$route = [\n    \nlabel\n =\n \nExample Changed\n,\n    \ndomains\n =\n [\n        \nexample.com\n,\n        \nwww.example.com\n,\n        \nnew.example.com\n,\n    ],\n    \nupstreams\n =\n [\n        [\nip\n =\n 10.0.0.1\n, \nport\n =\n \n8080\n]\n    ],\n    \nletsencrypt\n =\n 0,\n    \nenabled\n =\n 1\n];\n// column, value, $data\n$client-\niptables-\nupdate(\nid = ?\n, [1], $route);\n\n\n\n\n\nResponse\n\n\n\n\n\n\n\n\nFetch\n\n\nCall\n\n\n$client-\niptables-\nfetch(\nroute\n);\n$client-\niptables-\nfetch(\nroute\n, \nid = ?\n, [1]);\n$client-\niptables-\nfetch(\nroute\n, \nname = ?\n, [\nsome-guidV4-value\n])\n\n\n\n\n\nResponse\n\n\n\n\n\n\n\n\nRemove\n\n\nCall\n\n\n$client-\niptables-\nremove(\nname = ?\n, [$route[\nname\n]]);\n\n\n\n\n\nResponse\n\n\n\n\n\n\n\n\nRebuild\n\n\nCall\n\n\n$client-\niptables-\nrebuild(\nname = ?\n, [$route[\nname\n]]);\n\n\n\n\n\nResponse\n\n\n\n\n\n\n\n\nReset\n\n\nCall\n\n\n// dont remove tasks\n$client-\niptables-\nreset();\n\n// remove tasks\n$client-\niptables-\nreset(true);\n\n\n\n\n\nResponse\n\n\n\n\n\n\n\n\nTesting\n\n\nThere are no tests setup for this component.\n\n\nContributing\n\n\nPlease see \nCONTRIBUTING\n for details.\n\n\nSecurity\n\n\nIf you discover any security related issues, please contact me via \nhttps://cherone.co.uk\n instead of using the issue tracker.\n\n\nCredits\n\n\n\n\nLawrence Cherone\n\n\nAll Contributors\n\n\n\n\nDevelopment Encouragement\n\n\nIf you use this project and make money from it or want to show your appreciation,\nplease feel free to make a donation \nhttps://www.paypal.me/lcherone\n, thanks.\n\n\nSponsors\n\n\nGet your company or name listed throughout the documentation and on each github repository, contact me at \nhttps://cherone.co.uk\n for further details.\n\n\nLicense\n\n\nThe MIT License (MIT). Please see \nLicense File\n for more information.\n\n\nSee the \norganisations page\n for additional components.", 
+            "title": "Iptables"
         }, 
         {
-            "location": "/#installing", 
-            "text": "Bring in the project with composer:  {\n     require : {\n         plinker/iptables :  =v0.1 \n    }\n}  Then navigate to  ./vendor/plinker/iptables/scripts  and run  bash install.sh", 
-            "title": "::Installing::"
+            "location": "/#iptables", 
+            "text": "Control iptables for pre routing rules (port forwarding). Specifically suited for forwarding ports to internal LXC containers.", 
+            "title": "Iptables"
+        }, 
+        {
+            "location": "/#install", 
+            "text": "Require this package with composer using the following command:  $ composer require plinker/iptables  Then navigate to  ./vendor/plinker/iptables/scripts  and run  bash install.sh .", 
+            "title": "Install"
         }, 
         {
             "location": "/#client", 
-            "text": "/**   * Plinker Config   */  $ config   =   [       //   plinker   connection       plinker   =   [           endpoint   =   http://127.0.0.1:88 ,           public_key    =   makeSomethingUp ,           private_key   =   againMakeSomethingUp       ] ,       //   database   connection       database   =   [           dsn        =   sqlite:./.plinker/database.db ,           host       =   ,           name       =   ,           username   =   ,           password   =   ,           freeze     =   false ,           debug      =   false ,       ]  ];  //   init   plinker   endpoint   client  $ iptables   =   new   \\ Plinker \\ Core \\ Client (       //   where   is   the   plinker   server       $ config [ plinker ][ endpoint ] ,       //   component   namespace   to   interface   to       Iptables\\Manager ,       //   keys       $ config [ plinker ][ public_key ] ,       $ config [ plinker ][ private_key ] ,       //   construct   values   which   you   pass   to   the   component ,   which   the   component       //    will   use ,   for   RedbeanPHP   component   you   would   send   the   database   connection       //    dont   worry   its   AES   encrypted .   see :   encryption - proof . txt       $ config  ) ;", 
-            "title": "::Client::"
+            "text": "Creating a client instance is done as follows:  ?php  require   vendor/autoload.php ;  /**   * Initialize plinker client.   *   * @param string $server - URL to server listener.   * @param string $config - server secret, and/or a additional component data   */  $client   =   new   \\Plinker\\Core\\Client ( \n     http://example.com/server.php , \n     [ \n         secret   =   a secret password , \n         // database connection \n         database   =   [ \n             dsn        =   sqlite:./.plinker/database.db , \n             host       =   , \n             name       =   , \n             username   =   , \n             password   =   , \n             freeze     =   false , \n             debug      =   false , \n         ] \n     ]  );  // or using global function  $client   =   plinker_client ( http://example.com/server.php ,   a secret password ,   [ \n     // database connection \n     database   =   [ \n         dsn        =   sqlite:./.plinker/database.db , \n         host       =   , \n         name       =   , \n         username   =   , \n         password   =   , \n         freeze     =   false , \n         debug      =   false , \n     ]  ]);", 
+            "title": "Client"
         }, 
         {
-            "location": "/#calls", 
-            "text": "Setup  Applies build tasks to plinker/tasks queue.  $iptables- setup([\n     build_sleep  =  5,\n    // LXD settings *required\n     lxd  =  [\n         bridge  =   lxdbr0 ,\n         ip  =   10.158.250.0/24 \n    ],\n    // Docker settings *optional\n     docker  =  [\n         bridge  =   docker0 ,\n         ip  =   172.17.0.0/16 \n    ]\n]);  Create  $route = [\n     label  =   Example ,\n     domains  =  [\n         example.com ,\n         www.example.com \n    ],\n     upstreams  =  [\n        [ ip  =   127.0.0.1 ,  port  =   80 ]\n    ],\n     letsencrypt  =  0,\n     enabled  =  1\n];\n$iptables- add($route);  Update  $route = [\n     label  =   Example Changed ,\n     domains  =  [\n         example.com ,\n         www.example.com ,\n         new.example.com ,\n    ],\n     upstreams  =  [\n        [ ip  =  10.0.0.1 ,  port  =   8080 ]\n    ],\n     letsencrypt  =  0,\n     enabled  =  1\n];\n// column, value, $data\n$iptables- update( id = ? , [1], $route);  Fetch  $iptables- fetch( route );\n$iptables- fetch( route ,  id = ? , [1]);\n$iptables- fetch( route ,  name = ? , [ some-guidV4-value ])  Remove  $iptables- remove( name = ? , [$route[ name ]]);  Rebuild  $iptables- rebuild( name = ? , [$route[ name ]]);  Reset  // dont remove tasks\n$iptables- reset();\n\n// remove tasks\n$iptables- reset(true);  See the  organisations page  for additional \ncomponents and examples.", 
-            "title": "::Calls::"
+            "location": "/#methods", 
+            "text": "Once setup, you call the class though its namespace to its method.", 
+            "title": "Methods"
+        }, 
+        {
+            "location": "/#setup", 
+            "text": "Applies build tasks to plinker/tasks queue.     Parameter  Type  Description  Default      options  array  Task options      Call  $client- iptables- setup([\n     build_sleep  =  5,\n    // LXD settings *required\n     lxd  =  [\n         bridge  =   lxdbr0 ,\n         ip  =   10.158.250.0/24 \n    ],\n    // Docker settings *optional\n     docker  =  [\n         bridge  =   docker0 ,\n         ip  =   172.17.0.0/16 \n    ]\n]);  Response", 
+            "title": "Setup"
+        }, 
+        {
+            "location": "/#create", 
+            "text": "Call  $route = [\n     label  =   Example ,\n     domains  =  [\n         example.com ,\n         www.example.com \n    ],\n     upstreams  =  [\n        [ ip  =   127.0.0.1 ,  port  =   80 ]\n    ],\n     letsencrypt  =  0,\n     enabled  =  1\n];\n$client- iptables- add($route);  Response", 
+            "title": "Create"
+        }, 
+        {
+            "location": "/#update", 
+            "text": "Call  $route = [\n     label  =   Example Changed ,\n     domains  =  [\n         example.com ,\n         www.example.com ,\n         new.example.com ,\n    ],\n     upstreams  =  [\n        [ ip  =  10.0.0.1 ,  port  =   8080 ]\n    ],\n     letsencrypt  =  0,\n     enabled  =  1\n];\n// column, value, $data\n$client- iptables- update( id = ? , [1], $route);  Response", 
+            "title": "Update"
+        }, 
+        {
+            "location": "/#fetch", 
+            "text": "Call  $client- iptables- fetch( route );\n$client- iptables- fetch( route ,  id = ? , [1]);\n$client- iptables- fetch( route ,  name = ? , [ some-guidV4-value ])  Response", 
+            "title": "Fetch"
+        }, 
+        {
+            "location": "/#remove", 
+            "text": "Call  $client- iptables- remove( name = ? , [$route[ name ]]);  Response", 
+            "title": "Remove"
+        }, 
+        {
+            "location": "/#rebuild", 
+            "text": "Call  $client- iptables- rebuild( name = ? , [$route[ name ]]);  Response", 
+            "title": "Rebuild"
+        }, 
+        {
+            "location": "/#reset", 
+            "text": "Call  // dont remove tasks\n$client- iptables- reset();\n\n// remove tasks\n$client- iptables- reset(true);  Response", 
+            "title": "Reset"
+        }, 
+        {
+            "location": "/#testing", 
+            "text": "There are no tests setup for this component.", 
+            "title": "Testing"
+        }, 
+        {
+            "location": "/#contributing", 
+            "text": "Please see  CONTRIBUTING  for details.", 
+            "title": "Contributing"
+        }, 
+        {
+            "location": "/#security", 
+            "text": "If you discover any security related issues, please contact me via  https://cherone.co.uk  instead of using the issue tracker.", 
+            "title": "Security"
+        }, 
+        {
+            "location": "/#credits", 
+            "text": "Lawrence Cherone  All Contributors", 
+            "title": "Credits"
+        }, 
+        {
+            "location": "/#development-encouragement", 
+            "text": "If you use this project and make money from it or want to show your appreciation,\nplease feel free to make a donation  https://www.paypal.me/lcherone , thanks.", 
+            "title": "Development Encouragement"
+        }, 
+        {
+            "location": "/#sponsors", 
+            "text": "Get your company or name listed throughout the documentation and on each github repository, contact me at  https://cherone.co.uk  for further details.", 
+            "title": "Sponsors"
+        }, 
+        {
+            "location": "/#license", 
+            "text": "The MIT License (MIT). Please see  License File  for more information.  See the  organisations page  for additional components.", 
+            "title": "License"
         }
     ]
 }
