@@ -127,7 +127,7 @@ namespace Plinker\Iptables {
                     'Builds iptables',
                     // default params
                     []
-                 ]);
+                ]);
                 // queue task to run every second
                 $this->tasks->run(
                     [
@@ -182,7 +182,6 @@ namespace Plinker\Iptables {
          */
         public function update_package()
         {
-            // queue nginx.composer_update task
             return $this->tasks->run(['iptables.composer_update', [], 0]);
         }
 
