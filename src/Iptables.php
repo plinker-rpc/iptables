@@ -1,7 +1,7 @@
 <?php
 namespace Plinker\Iptables {
 
-    use Plinker\Tasks;
+    use Plinker\Tasks\Tasks as TasksManager;
     use Plinker\Redbean\RedBean as Model;
 
     /**
@@ -71,7 +71,7 @@ namespace Plinker\Iptables {
 
             // load models
             $this->model = new Model($this->config['database']);
-            $this->tasks = new Tasks\Manager($this->config);
+            $this->tasks = new TasksManager($this->config);
         }
 
         /**
