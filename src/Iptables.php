@@ -82,7 +82,7 @@ namespace Plinker\Iptables {
             <?php
             $iptables->setup([
                 'build_sleep' => 5,
-                'reconcile_sleep' => 5,
+                'reconcile_sleep' => 5
             ])
            </code>
          *
