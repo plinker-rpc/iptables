@@ -125,7 +125,7 @@
                 PlinkerRPC
               </span>
               <span class="md-header-nav__topic">
-                Iptables
+                IPtables
               </span>
             
           
@@ -251,11 +251,11 @@
     
     
       <label class="md-nav__link md-nav__link--active" for="toc">
-        Iptables
+        IPtables
       </label>
     
-    <a href="." title="Iptables" class="md-nav__link md-nav__link--active">
-      Iptables
+    <a href="." title="IPtables" class="md-nav__link md-nav__link--active">
+      IPtables
     </a>
     
       
@@ -692,7 +692,7 @@
               
                 
                 
-                <h1 id="iptables">Iptables<a class="headerlink" href="#iptables" title="Permanent link">&para;</a></h1>
+                <h1 id="iptables">IPtables<a class="headerlink" href="#iptables" title="Permanent link">&para;</a></h1>
 <p>Control iptables for pre routing rules (port forwarding). Specifically suited for forwarding ports to internal LXC containers.</p>
 <h2 id="install">Install<a class="headerlink" href="#install" title="Permanent link">&para;</a></h2>
 <p>Require this package with composer using the following command:</p>
@@ -1364,9 +1364,132 @@ COMMIT
 
 
 <h3 id="add-forward">Add Forward<a class="headerlink" href="#add-forward" title="Permanent link">&para;</a></h3>
-<p>todo</p>
+<p>Add new port forward rule.</p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>data</td>
+<td>array</td>
+<td>Rule data</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Call</strong></p>
+<div class="codehilite"><pre><span></span>$client-&gt;iptables-&gt;addForward([
+    &#39;label&#39; =&gt; &#39;Example&#39;,
+    &#39;ip&#39; =&gt; &#39;10.158.250.5&#39;,
+    &#39;port&#39; =&gt; 2252,
+    &#39;srv_type&#39; =&gt; &#39;SSH&#39;,
+    &#39;srv_port&#39; =&gt; 22,
+    &#39;enabled&#39; =&gt; 1
+]);
+</pre></div>
+
+
+<p><strong>Response</strong></p>
+<div class="codehilite"><pre><span></span>Array
+(
+    [status] =&gt; success
+    [values] =&gt; Array
+        (
+            [id] =&gt; 5
+            [type] =&gt; forward
+            [name] =&gt; d82025df-fc3f-4a2e-bbbd-dde6fddab4cb
+            [label] =&gt; Example
+            [ip] =&gt; 10.158.250.5
+            [port] =&gt; 2252
+            [srv_type] =&gt; ssh
+            [srv_port] =&gt; 22
+            [enabled] =&gt; 1
+            [added_date] =&gt; 2018-05-10 01:01:46
+            [has_change] =&gt; 1
+        )
+
+)
+</pre></div>
+
+
 <h3 id="update-forward">Update Forward<a class="headerlink" href="#update-forward" title="Permanent link">&para;</a></h3>
-<p>todo</p>
+<p>Update port forward rule.</p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>placeholder</td>
+<td>string</td>
+<td>Query placeholder</td>
+<td></td>
+</tr>
+<tr>
+<td>values</td>
+<td>array</td>
+<td>Match values</td>
+<td></td>
+</tr>
+<tr>
+<td>data</td>
+<td>array</td>
+<td>Updated rule data</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Call</strong></p>
+<div class="codehilite"><pre><span></span>$client-&gt;iptables-&gt;updateForward(&#39;id = ?&#39;, [4], [
+    &#39;name&#39; =&gt; &#39;8610e47a-cf06-4806-964b-c5a3642954bb&#39;, // always use, to bypass port in use check
+    &#39;label&#39; =&gt; &#39;Example&#39;,
+    &#39;ip&#39; =&gt; &#39;10.158.250.5&#39;,
+    &#39;port&#39; =&gt; 2252,
+    &#39;srv_type&#39; =&gt; &#39;SSH&#39;,
+    &#39;srv_port&#39; =&gt; 22,
+    &#39;enabled&#39; =&gt; 1
+]);
+</pre></div>
+
+
+<p><strong>Response</strong></p>
+<div class="codehilite"><pre><span></span>Array
+(
+    [status] =&gt; success
+    [values] =&gt; Array
+        (
+            [id] =&gt; 4
+            [type] =&gt; forward
+            [name] =&gt; 8610e47a-cf06-4806-964b-c5a3642954bb
+            [label] =&gt; Example
+            [ip] =&gt; 10.158.250.5
+            [port] =&gt; 2252
+            [srv_type] =&gt; SSH
+            [srv_port] =&gt; 22
+            [enabled] =&gt; 1
+            [added_date] =&gt; 2018-05-10 01:01:25
+            [has_change] =&gt; 1
+            [updated_date] =&gt; 2018-05-10 01:16:46
+            [range] =&gt; 
+            [note] =&gt; 
+            [bantime] =&gt; 
+        )
+
+)
+</pre></div>
+
+
 <h2 id="testing">Testing<a class="headerlink" href="#testing" title="Permanent link">&para;</a></h2>
 <p>There are no tests setup for this component.</p>
 <h2 id="contributing">Contributing<a class="headerlink" href="#contributing" title="Permanent link">&para;</a></h2>
