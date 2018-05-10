@@ -1,4 +1,4 @@
-# Iptables
+# IPtables
 
 Control iptables for pre routing rules (port forwarding). Specifically suited for forwarding ports to internal LXC containers.
 
@@ -495,11 +495,96 @@ boolean - false in the above case
 
 ### Add Forward
 
-todo
+Add new port forward rule.
+
+| Parameter   | Type           | Description   | Default        |
+| ----------  | -------------  | ------------- |  ------------- | 
+| data        | array          | Rule data     |                |
+
+**Call**
+
+    $client->iptables->addForward([
+        'label' => 'Example',
+        'ip' => '10.158.250.5',
+        'port' => 2252,
+        'srv_type' => 'SSH',
+        'srv_port' => 22,
+        'enabled' => 1
+    ]);
+    
+**Response**
+
+``` text
+Array
+(
+    [status] => success
+    [values] => Array
+        (
+            [id] => 5
+            [type] => forward
+            [name] => d82025df-fc3f-4a2e-bbbd-dde6fddab4cb
+            [label] => Example
+            [ip] => 10.158.250.5
+            [port] => 2252
+            [srv_type] => ssh
+            [srv_port] => 22
+            [enabled] => 1
+            [added_date] => 2018-05-10 01:01:46
+            [has_change] => 1
+        )
+
+)
+```
 
 ### Update Forward
 
-todo
+Update port forward rule.
+
+| Parameter   | Type           | Description   | Default        |
+| ----------  | -------------  | ------------- |  ------------- | 
+| placeholder | string         | Query placeholder |            |
+| values      | array          | Match values      |            |
+| data        | array          | Updated rule data |            |
+
+**Call**
+
+    $client->iptables->updateForward('id = ?', [4], [
+        'name' => '8610e47a-cf06-4806-964b-c5a3642954bb', // always use, to bypass port in use check
+        'label' => 'Example',
+        'ip' => '10.158.250.5',
+        'port' => 2252,
+        'srv_type' => 'SSH',
+        'srv_port' => 22,
+        'enabled' => 1
+    ]);
+    
+**Response**
+
+``` text
+Array
+(
+    [status] => success
+    [values] => Array
+        (
+            [id] => 4
+            [type] => forward
+            [name] => 8610e47a-cf06-4806-964b-c5a3642954bb
+            [label] => Example
+            [ip] => 10.158.250.5
+            [port] => 2252
+            [srv_type] => SSH
+            [srv_port] => 22
+            [enabled] => 1
+            [added_date] => 2018-05-10 01:01:25
+            [has_change] => 1
+            [updated_date] => 2018-05-10 01:16:46
+            [range] => 
+            [note] => 
+            [bantime] => 
+        )
+
+)
+```
 
 ## Testing
 

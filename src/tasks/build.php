@@ -111,17 +111,17 @@ if (!class_exists('Iptables')) {
                     }
                 } else {
                     // ssh preset range
-                    if ($row['srv_type'] == 'SSH' && !empty($row['port']) && !empty($row['ip'])) {
+                    if ($row['srv_type'] == 'ssh' && !empty($row['port']) && !empty($row['ip'])) {
                         $rules .= "-A PREROUTING -p tcp -m tcp --dport ".(int) $row['port']." -j DNAT --to-destination ".$row['ip'].":22\n";
                         $rules .= "-A PREROUTING -p udp -m udp --dport ".(int) $row['port']." -j DNAT --to-destination ".$row['ip'].":22\n";
                     }
                     // mySQL preset range
-                    elseif ($row['srv_type'] == 'mySQL' && !empty($row['port']) && !empty($row['ip'])) {
+                    elseif ($row['srv_type'] == 'mysql' && !empty($row['port']) && !empty($row['ip'])) {
                         $rules .= "-A PREROUTING -p tcp -m tcp --dport ".(int) $row['port']." -j DNAT --to-destination ".$row['ip'].":3306\n";
                         $rules .= "-A PREROUTING -p udp -m udp --dport ".(int) $row['port']." -j DNAT --to-destination ".$row['ip'].":3306\n";
                     }
                     // http preset range
-                    elseif ($row['srv_type'] == 'HTTP' && !empty($row['port']) && !empty($row['ip'])) {
+                    elseif ($row['srv_type'] == 'http' && !empty($row['port']) && !empty($row['ip'])) {
                         $rules .= "-A PREROUTING -p tcp -m tcp --dport ".(int) $row['port']." -j DNAT --to-destination ".$row['ip'].":80\n";
                         $rules .= "-A PREROUTING -p udp -m udp --dport ".(int) $row['port']." -j DNAT --to-destination ".$row['ip'].":80\n";
                     } else {

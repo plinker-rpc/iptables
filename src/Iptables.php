@@ -492,7 +492,9 @@ namespace Plinker\Iptables {
         {
             $errors = [];
 
-            $iptable = $this->model->findOne(['iptable', $placeholder, $values]);
+            $values[] = 'block';
+
+            $iptable = $this->model->findOne(['iptable', $placeholder.' AND type = ?', $values]);
 
             // check found
             if (empty($iptable->name)) {
@@ -713,32 +715,30 @@ namespace Plinker\Iptables {
          *
          * @return array
          */
-        public function addForward(array $params = array())
+        public function addForward(array $data = [])
         {
-            $data = $params[0];
-
             $errors = [];
 
             // validate port - needs to be change to accept an array
             if (isset($data['port'])) {
                 $data['port'] = trim($data['port']);
                 if (empty($data['port'])) {
-                    $errors['port'] = 'Leave blank or enter a numeric port number to use this option.';
+                    $errors['port'] = 'Leave blank or enter a numeric port number to use this option';
                 }
                 if (!empty($data['port']) && !is_numeric($data['port'])) {
-                    $errors['port'] = 'Invalid port number.';
+                    $errors['port'] = 'Invalid port number';
                 }
                 if (!empty($data['port']) && is_numeric($data['port']) && $data['port'] > 65535) {
-                    $errors['port'] = 'Invalid port number.';
+                    $errors['port'] = 'Invalid port number';
                 }
                 if (!empty($data['port']) && is_numeric($data['port']) && $data['port'] == 0) {
-                    $errors['port'] = 'Invalid port number.';
+                    $errors['port'] = 'Invalid port number';
                 }
-                if (!empty($data['port']) && is_numeric($data['port']) && $this->checkPortInUse([$data['port']])) {
-                    $errors['port'] = 'Port already in use.';
+                if (!empty($data['port']) && is_numeric($data['port']) && $this->checkPortInUse($data['port'])) {
+                    $errors['port'] = 'Port already in use';
                 }
-                if (!empty($data['port']) && is_numeric($data['port']) && !$this->checkAllowedPort([$data['port']])) {
-                    $errors['port'] = 'Invalid available port.';
+                if (!empty($data['port']) && is_numeric($data['port']) && !$this->checkAllowedPort($data['port'])) {
+                    $errors['port'] = 'Invalid port number';
                 }
             }
 
@@ -746,16 +746,16 @@ namespace Plinker\Iptables {
             if (isset($data['srv_port'])) {
                 $data['srv_port'] = trim($data['srv_port']);
                 if (empty($data['srv_port'])) {
-                    $errors['srv_port'] = 'Leave blank or enter a numeric port number to use this option.';
+                    $errors['srv_port'] = 'Leave blank or enter a numeric port number to use this option';
                 }
                 if (!empty($data['srv_port']) && !is_numeric($data['srv_port'])) {
-                    $errors['srv_port'] = 'Invalid service port number.';
+                    $errors['srv_port'] = 'Invalid service port number';
                 }
                 if (!empty($data['srv_port']) && is_numeric($data['srv_port']) && $data['srv_port'] > 65535) {
-                    $errors['srv_port'] = 'Invalid service port number.';
+                    $errors['srv_port'] = 'Invalid service port number';
                 }
                 if (!empty($data['srv_port']) && is_numeric($data['srv_port']) && $data['srv_port'] == 0) {
-                    $errors['srv_port'] = 'Invalid service port number.';
+                    $errors['srv_port'] = 'Invalid service port number';
                 }
             }
 
@@ -781,7 +781,7 @@ namespace Plinker\Iptables {
                         'label'      => (!empty($data['label']) ? $data['label'] : '-'),
                         'ip'         => (!empty($data['ip']) ? $data['ip'] : ''),
                         'port'       => (!empty($data['port']) ? $data['port'] : ''),
-                        'srv_type'   => (!empty($data['srv_type']) ? $data['srv_type'] : ''),
+                        'srv_type'   => (!empty($data['srv_type']) ? strtolower($data['srv_type']) : ''),
                         'srv_port'   => (!empty($data['srv_port']) ? $data['srv_port'] : ''),
                         'enabled'    => !empty($data['enabled']),
                         'added_date' => date_create(),
@@ -822,15 +822,13 @@ namespace Plinker\Iptables {
          *
          * @return array
          */
-        public function updateForward(array $params = array())
+        public function updateForward($placeholder = '', array $values = [], array $data = [])
         {
-            $query = $params[0];
-            $id    = (array) $params[1];
-            $data  = (array) $params[2];
-
             $errors = [];
+            
+            $values[] = 'forward';
 
-            $iptable = $this->model->findOne(['iptable', $query, $id]);
+            $iptable = $this->model->findOne(['iptable', $placeholder.' AND type = ?', $values]);
 
             // check found
             if (empty($iptable->name)) {
@@ -850,30 +848,28 @@ namespace Plinker\Iptables {
                 ];
             }
 
-            $errors = [];
-
             // validate port - needs to be change to accept an array
             if (isset($data['port'])) {
                 $data['port'] = trim($data['port']);
                 if (empty($data['port'])) {
-                    $errors['port'] = 'Leave blank or enter a numeric port number to use this option.';
+                    $errors['port'] = 'Leave blank or enter a numeric port number to use this option';
                 }
                 if (!empty($data['port']) && !is_numeric($data['port'])) {
-                    $errors['port'] = 'Invalid port number.';
+                    $errors['port'] = 'Invalid port number';
                 }
                 if (!empty($data['port']) && is_numeric($data['port']) && $data['port'] > 65535) {
-                    $errors['port'] = 'Invalid port number.';
+                    $errors['port'] = 'Invalid port number';
                 }
                 if (!empty($data['port']) && is_numeric($data['port']) && $data['port'] == 0) {
-                    $errors['port'] = 'Invalid port number.';
+                    $errors['port'] = 'Invalid port number';
                 }
-                if (!empty($data['port']) && is_numeric($data['port']) && $this->checkPortInUse([$data['port']])) {
+                if (!empty($data['port']) && is_numeric($data['port']) && $this->checkPortInUse($data['port'])) {
                     if ($iptable->name != $data['name']) {
-                        $errors['port'] = 'Port already in use.';
+                        $errors['port'] = 'Port already in use';
                     }
                 }
-                if (!empty($data['port']) && is_numeric($data['port']) && !$this->checkAllowedPort([$data['port']])) {
-                    $errors['port'] = 'Invalid available port.';
+                if (!empty($data['port']) && is_numeric($data['port']) && !$this->checkAllowedPort($data['port'])) {
+                    $errors['port'] = 'Invalid available port';
                 }
             }
 
@@ -881,16 +877,16 @@ namespace Plinker\Iptables {
             if (isset($data['srv_port'])) {
                 $data['srv_port'] = trim($data['srv_port']);
                 if (empty($data['srv_port'])) {
-                    $errors['srv_port'] = 'Leave blank or enter a numeric port number to use this option.';
+                    $errors['srv_port'] = 'Leave blank or enter a numeric port number to use this option';
                 }
                 if (!empty($data['srv_port']) && !is_numeric($data['srv_port'])) {
-                    $errors['srv_port'] = 'Invalid service port number.';
+                    $errors['srv_port'] = 'Invalid service port number';
                 }
                 if (!empty($data['srv_port']) && is_numeric($data['srv_port']) && $data['srv_port'] > 65535) {
-                    $errors['srv_port'] = 'Invalid service port number.';
+                    $errors['srv_port'] = 'Invalid service port number';
                 }
                 if (!empty($data['srv_port']) && is_numeric($data['srv_port']) && $data['srv_port'] == 0) {
-                    $errors['srv_port'] = 'Invalid service port number.';
+                    $errors['srv_port'] = 'Invalid service port number';
                 }
             }
 
@@ -914,7 +910,7 @@ namespace Plinker\Iptables {
                 'has_change'
             ]);
 
-            // setupdated date and set has change
+            // set updated date and set has change
             $iptable->updated_date = date_create()->format('Y-m-d H:i:s');
             $iptable->has_change = 1;
 
