@@ -935,8 +935,7 @@ namespace Plinker\Iptables {
                 'port',
                 'srv_type',
                 'srv_port',
-                'enabled',
-                'has_change'
+                'enabled'
             ]);
 
             // set updated date and set has change
