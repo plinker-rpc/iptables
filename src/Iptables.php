@@ -97,9 +97,16 @@ namespace Plinker\Iptables {
          * @example
          * <code>
             <?php
-            $iptables->setup([
+            $client->iptables->setup([
                 'build_sleep' => 5,
-                'reconcile_sleep' => 5
+                'lxd' => [
+                    'bridge' => 'lxcbr0',
+                    'ip' => '10.171.90.0/8'
+                ],
+                'docker' => [
+                    'bridge' => 'docker0',
+                    'ip' => '172.17.0.0/16'
+                ]
             ])
            </code>
          *
@@ -114,7 +121,7 @@ namespace Plinker\Iptables {
                     $this->model->exec(['DELETE from tasks WHERE name = "iptables.setup" AND run_count > 0']);
                 }
                 // add task
-                $task['iptables.setup'] = $this->tasks->create([
+                $task['iptables.setup'] = $this->tasks->create(
                     // name
                     'iptables.setup',
                     // source
@@ -122,18 +129,18 @@ namespace Plinker\Iptables {
                     // type
                     'php',
                     // description
-                    'Sets up iptables for plinker',
+                    'Configures iptables module.',
                     // default params
                     []
-                 ]);
+                );
                 // queue task for run once
-                $this->tasks->run(['iptables.setup', [], 0]);
+                $this->tasks->run('iptables.setup', [], 0);
 
                 // create build task
                 if ($this->model->count(['tasks', 'name = "iptables.build" AND run_count > 0']) > 0) {
                     $this->model->exec(['DELETE from tasks WHERE name = "iptables.build" AND run_count > 0']);
                 }
-                $task['iptables.build'] = $this->tasks->create([
+                $task['iptables.build'] = $this->tasks->create(
                     // name
                     'iptables.build',
                     // source
@@ -141,36 +148,34 @@ namespace Plinker\Iptables {
                     // type
                     'php',
                     // description
-                    'Builds iptables',
+                    'Builds iptables configuration.',
                     // default params
                     []
-                ]);
+                );
                 // queue task to run every second
                 $this->tasks->run(
-                    [
-                        'iptables.build',
-                        $params,
-                        ($params['build_sleep'] ? (int) $params['build_sleep'] : 5)
-                    ]
+                    'iptables.build',
+                    $params,
+                    ($params['build_sleep'] ? (int) $params['build_sleep'] : 5)
                  );
 
                 // create composer update task
-                if ($this->model->count(['tasks', 'name = "iptables.composer_update" AND run_count > 0']) > 0) {
-                    $this->model->exec(['DELETE from tasks WHERE name = "iptables.composer_update" AND run_count > 0']);
+                if ($this->model->count(['tasks', 'name = "iptables.auto_update" AND run_count > 0']) > 0) {
+                    $this->model->exec(['DELETE from tasks WHERE name = "iptables.auto_update" AND run_count > 0']);
                 }
                 // add
-                $task['iptables.composer_update'] = $this->tasks->create([
+                $task['iptables.auto_update'] = $this->tasks->create(
                     // name
-                    'iptables.composer_update',
+                    'iptables.auto_update',
                     // source
                     "#!/bin/bash\ncomposer update plinker/iptables",
                     // type
                     'bash',
                     // description
-                    'Composer update iptables plinker task',
+                    'Auto update iptables module code.',
                     // default params
                     []
-                ]);
+                );
             } catch (\Exception $e) {
                 return [
                     'status' => 'error',
@@ -199,7 +204,7 @@ namespace Plinker\Iptables {
          */
         public function update_package()
         {
-            return $this->tasks->run(['iptables.composer_update', [], 0]);
+            return $this->tasks->run('iptables.auto_update', [], 0);
         }
 
         /**
@@ -362,7 +367,7 @@ namespace Plinker\Iptables {
             if (!empty($purge)) {
                 $this->model->exec(['DELETE FROM tasks WHERE name = "iptables.setup"']);
                 $this->model->exec(['DELETE FROM tasks WHERE name = "iptables.build"']);
-                $this->model->exec(['DELETE FROM tasks WHERE name = "iptables.composer_update"']);
+                $this->model->exec(['DELETE FROM tasks WHERE name = "iptables.auto_update"']);
             }
 
             return [
