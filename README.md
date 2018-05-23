@@ -76,8 +76,15 @@ Applies build tasks to plinker/tasks queue.
 
     $client->iptables->setup([
         'build_sleep' => 5,
-        'reconcile_sleep' => 5,
-    ]);
+        'lxd' => [
+            'bridge' => 'lxcbr0',
+            'ip' => '10.171.90.0/8'
+        ],
+        'docker' => [
+            'bridge' => 'docker0',
+            'ip' => '172.17.0.0/16'
+        ]
+    ])
 
 **Response**
 ``` text
