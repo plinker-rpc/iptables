@@ -116,7 +116,6 @@ namespace Plinker\Iptables {
         public function setup(array $params = array())
         {
             try {
-                /*
                 // create setup task
                 if ($this->model->count(['tasks', 'name = "iptables.setup" AND run_count > 0']) > 0) {
                     $this->model->exec(['DELETE from tasks WHERE name = "iptables.setup" AND run_count > 0']);
@@ -135,8 +134,7 @@ namespace Plinker\Iptables {
                     []
                 );
                 // queue task for run once
-                $this->tasks->run('iptables.setup', [], 0);
-                */
+                $this->tasks->run('iptables.setup', (array) $params, 0);
                 
                 // create build task
                 if ($this->model->count(['tasks', 'name = "iptables.build" AND run_count > 0']) > 0) {
