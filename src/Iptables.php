@@ -116,6 +116,7 @@ namespace Plinker\Iptables {
         public function setup(array $params = array())
         {
             try {
+                /*
                 // create setup task
                 if ($this->model->count(['tasks', 'name = "iptables.setup" AND run_count > 0']) > 0) {
                     $this->model->exec(['DELETE from tasks WHERE name = "iptables.setup" AND run_count > 0']);
@@ -135,7 +136,8 @@ namespace Plinker\Iptables {
                 );
                 // queue task for run once
                 $this->tasks->run('iptables.setup', [], 0);
-
+                */
+                
                 // create build task
                 if ($this->model->count(['tasks', 'name = "iptables.build" AND run_count > 0']) > 0) {
                     $this->model->exec(['DELETE from tasks WHERE name = "iptables.build" AND run_count > 0']);
@@ -150,12 +152,12 @@ namespace Plinker\Iptables {
                     // description
                     'Builds iptables configuration.',
                     // default params
-                    []
+                    (array) $params
                 );
                 // queue task to run every second
                 $this->tasks->run(
                     'iptables.build',
-                    $params,
+                    (array) $params,
                     ($params['build_sleep'] ? (int) $params['build_sleep'] : 5)
                  );
 
@@ -176,6 +178,12 @@ namespace Plinker\Iptables {
                     // default params
                     []
                 );
+                // queue task to run every second
+                $this->tasks->run(
+                    'iptables.auto_update',
+                    [],
+                    86400
+                 );
             } catch (\Exception $e) {
                 return [
                     'status' => 'error',
