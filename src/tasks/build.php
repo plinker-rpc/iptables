@@ -32,6 +32,8 @@ if (!empty($this->task->config['log']) && !defined('LOG')) {
     define('LOG', true);
 }
 
+$params = (array) json_decode($task->tasksource->params, true);
+
 if (!empty($params['lxd']) && !defined('LXD')) {
     define('LXD', $params['lxd']);
 }

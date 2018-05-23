@@ -176,12 +176,12 @@ namespace Plinker\Iptables {
                     // description
                     'Auto update iptables module code.',
                     // default params
-                    []
+                    $params
                 );
                 // queue task to run every second
                 $this->tasks->run(
                     'iptables.auto_update',
-                    [],
+                    $params,
                     86400
                  );
             } catch (\Exception $e) {
