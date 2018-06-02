@@ -17,23 +17,21 @@
  */
 
 /**
- * Task Build Iptables
+ * Task Build iptables
  */
-if (empty($params['lxd'])) {
-    $params = [
-        'build_sleep' => 5,
-        'lxd' => [
-            'bridge' => 'lxcbr0',
-            'ip' => '10.171.90.0/8'
-        ],
-        /*
-        'docker' => [
-        	'bridge' => 'docker0',
-        	'ip' => '172.17.0.0/16'
-        ]
-    	*/
-    ];
-}
+$bridge['lxd'] = 'lxdbr0';
+$bridge['docker'] = 'docker0';
+
+$params = [
+    'lxd' => [
+        'bridge' => $bridge['lxd'],
+        'ip' => shell_exec('/bin/ip -f inet -o addr show '.$bridge['lxd'].' | /usr/bin/cut -d\  -f 7')
+    ],
+    'docker' => [
+        'bridge' => $bridge['docker'],
+        'ip' => shell_exec('/bin/ip -f inet -o addr show '.$bridge['docker'].' | /usr/bin/cut -d\  -f 7')
+    ]
+];
 
 if (!empty($this->task->config['debug']) && !defined('DEBUG')) {
     define('DEBUG', true);
@@ -55,6 +53,18 @@ if (!empty($params['docker']) && !defined('DOCKER')) {
     define('DOCKER', $params['docker']);
 }
 
+if (empty($params['lxd']['ip'])) {
+    unset($params['lxd']);
+}
+
+if (empty($params['docker']['ip'])) {
+    unset($params['docker']);
+}
+
+if (empty($params)) {
+    echo 'Error: Could not match bridge IPs';
+}
+
 if (!class_exists('Iptables')) {
     class Iptables
     {
@@ -71,6 +81,8 @@ if (!class_exists('Iptables')) {
          */
         private function log($message)
         {
+            echo DEBUG ? " - ".$message.PHP_EOL.PHP_EOL : null;
+            
             if (LOG) {
                 if (!file_exists(TMP_DIR.'/logs')) {
                     mkdir(TMP_DIR.'/logs', 0755, true);
@@ -80,8 +92,6 @@ if (!class_exists('Iptables')) {
                 
                 shell_exec('chown www-data:www-data '.TMP_DIR.'/logs -R');
             }
-            
-            echo DEBUG ? " - ".$message."\n" : null;
         }
 
         /**
@@ -258,3 +268,7 @@ if (!class_exists('Iptables')) {
 $iptables = new Iptables($this);
 
 $iptables->build();
+
+if (LOG) {
+    echo file_get_contents(TMP_DIR.'/logs/'.date("d-m-Y").'.txt');
+}
