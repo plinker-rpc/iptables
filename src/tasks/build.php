@@ -88,7 +88,7 @@ if (!class_exists('Iptables')) {
                     mkdir(TMP_DIR.'/logs', 0755, true);
                 }
                 $log  = '['.date("c").'] '.$message.PHP_EOL;
-                file_put_contents(TMP_DIR.'/logs/'.date("d-m-Y").'.txt', $log, FILE_APPEND);
+                file_put_contents(TMP_DIR.'/logs/iptables.'.date("d-m-Y").'.txt', $log, FILE_APPEND);
                 
                 shell_exec('chown www-data:www-data '.TMP_DIR.'/logs -R');
             }
@@ -270,5 +270,5 @@ $iptables = new Iptables($this);
 $iptables->build();
 
 if (LOG) {
-    echo file_get_contents(TMP_DIR.'/logs/'.date("d-m-Y").'.txt');
+    echo file_get_contents(TMP_DIR.'/logs/iptables.'.date("d-m-Y").'.txt');
 }
